@@ -60,7 +60,7 @@ public class ExpTeleop extends OpMode{
         telemetry.addData("Say", "Nalu Zou");
         // Send telemetry message to signify robot running;
         // *******************************************
-        telemetry.addData("This is our debug message", "");
+        telemetry.addData("Welcome to the experimental robot", "");
         // *******************************************
         updateTelemetry(telemetry);
     }
@@ -84,10 +84,12 @@ public class ExpTeleop extends OpMode{
     }
 
     private void move(double left, double right) {
-        robot.leftFrontMotor.setPower(left);
-        robot.leftBackMotor.setPower(left);
+        robot.leftFrontMotor.setPower(-left);
+        robot.leftBackMotor.setPower(-left);
         robot.rightFrontMotor.setPower(right);
         robot.rightBackMotor.setPower(right);
+
+        //telemetry.addData("driver", left+ "    " + right);
     }
     /*
     private void vertical(boolean dir) {
@@ -116,8 +118,8 @@ public class ExpTeleop extends OpMode{
         // Use gamepad buttons to drive up, down, left, or right
         //press a to launch beacon0
 
-        double y = 0 - gamepad1.right_stick_x;
-        double x = 0 - gamepad1.left_stick_y;
+        double y = 0 - gamepad1.left_stick_y;
+        double x = 0 - gamepad1.right_stick_x;
 
 
         x = (Math.abs(x) < THRESHOLD) ? 0 : x;
@@ -127,11 +129,11 @@ public class ExpTeleop extends OpMode{
 
         if (x > 0 || x < 0) {
             if (y > 0) {
-                move(((x + y) > 1 ? 1 : x + y ), x - y);
+                move(y - x, y + x);
                 telemetry.addData("Driver","turning moving forward");
             }
             else if (y < 0) {
-                move(y - x, y + x);
+                move(y + x, y - x);
                 telemetry.addData("Driver","turning moving backward");
             }
             else {
