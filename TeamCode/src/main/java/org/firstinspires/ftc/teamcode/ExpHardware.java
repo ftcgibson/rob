@@ -1,10 +1,9 @@
 package org.firstinspires.ftc.teamcode;
 
 import com.qualcomm.robotcore.hardware.DcMotor;
-import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.hardware.Servo;
 import com.qualcomm.robotcore.util.ElapsedTime;
-
+import com.qualcomm.robotcore.hardware.*;
 /**
  * This is NOT an opmode.
  *
@@ -21,13 +20,12 @@ import com.qualcomm.robotcore.util.ElapsedTime;
  * Servo channel:  Servo to open left claw:  "left_hand"
  * Servo channel:  Servo to open right claw: "right_hand"
  */
-public class ExpHardware
-{
+public class ExpHardware {
     /* Public OpMode members. */
-    public DcMotor  leftFrontMotor  = null;
-    public DcMotor  rightFrontMotor = null;
-    public DcMotor  leftBackMotor   = null;
-    public DcMotor  rightBackMotor  = null;
+    public DcMotor leftFrontMotor = null;
+    public DcMotor rightFrontMotor = null;
+    public DcMotor leftBackMotor = null;
+    public DcMotor rightBackMotor = null;
 
     //public Servo    leftClaw        = null;
     //public Servo    rightClaw       = null;
@@ -36,19 +34,26 @@ public class ExpHardware
 
     //public static final double MID_SERVO       =  0.5 ;
 
-    public static final double FORWARD_POWER    =  0.45 ;
-    public static final double BACKWARD_POWER   = -0.45 ;
-    public static final double TURN_POWER       = 0.2;
+    public static final double FORWARD_POWER = 0.45;
+    public static final double BACKWARD_POWER = -0.45;
+    public static final double TURN_POWER = 0.2;
     public static final double BACKWARD_TURN_POWER = -0.2;
-    public static final double STOP_POWER       =  0.0;
+    public static final double STOP_POWER = 0.0;
+
+    private boolean AUT_MODE = false;
 
     /* local OpMode members. */
-    HardwareMap hwMap           =  null;
-    private ElapsedTime period  = new ElapsedTime();
+    HardwareMap hwMap = null;
+    private ElapsedTime period = new ElapsedTime();
 
     /* Constructor */
-    public ExpHardware(){
+    public ExpHardware() {
+        AUT_MODE = false;
+    }
 
+    public ExpHardware(boolean newMode)
+    {
+        AUT_MODE = newMode;
     }
 
     /* Initialize standard Hardware interfaces */
@@ -76,10 +81,18 @@ public class ExpHardware
 
         // Set all motors to run without encoders.
         // May want to use RUN_USING_ENCODERS if encoders are installed.
-        leftFrontMotor.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
-        rightFrontMotor.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
-        leftBackMotor.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
-        rightBackMotor.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+        if (AUT_MODE) {
+            leftFrontMotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+            rightFrontMotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+            leftBackMotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+            rightBackMotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        }
+        else {
+            leftFrontMotor.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+            rightFrontMotor.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+            leftBackMotor.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+            rightBackMotor.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+        }
 
         // Define and initialize ALL installed servos.
         // leftClaw = hwMap.servo.get("left claw");

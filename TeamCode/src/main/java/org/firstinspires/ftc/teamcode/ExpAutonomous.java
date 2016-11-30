@@ -38,6 +38,7 @@ import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.util.ElapsedTime;
 import java.util.Timer;
+import com.qualcomm.robotcore.hardware.*;
 
 import org.firstinspires.ftc.robotcontroller.external.samples.HardwarePushbot;
 
@@ -70,10 +71,10 @@ import org.firstinspires.ftc.robotcontroller.external.samples.HardwarePushbot;
 
 @Autonomous(name="Robot Autonomous", group="Pushbot")
 //@Disabled
-public class RobotAutonomousTank extends LinearOpMode {
+public class ExpAutonomous extends LinearOpMode {
 
     /* Declare OpMode members. */
-    org.firstinspires.ftc.teamcode.HardwarePushbot robot = new org.firstinspires.ftc.teamcode.HardwarePushbot();
+    org.firstinspires.ftc.teamcode.ExpHardware robot = new org.firstinspires.ftc.teamcode.ExpHardware(true);
     private ElapsedTime runtime = new ElapsedTime();
 
     static final double COUNTS_PER_MOTOR_REV = 1440;    // eg: TETRIX Motor Encoder
@@ -81,56 +82,66 @@ public class RobotAutonomousTank extends LinearOpMode {
     static final double WHEEL_DIAMETER_INCHES = 4.0;     // For figuring circumference
     static final double COUNTS_PER_INCH = (COUNTS_PER_MOTOR_REV * DRIVE_GEAR_REDUCTION) /
             (WHEEL_DIAMETER_INCHES * 3.1415);
-    static final double DRIVE_SPEED = 0.6;
-    static final double TURN_SPEED = 0.5;
 
-    static final int FORWARD_TIME = 3;
-    long x = -1;
-
-    private void move(double left, double right) {
-        robot.leftFrontMotor.setPower(left);
-        robot.leftBackMotor.setPower(left);
-        robot.rightFrontMotor.setPower(-right);
-        robot.rightBackMotor.setPower(-right);
-    }
-
-    static boolean RUNNING = true;
-    static double TIMER =  System.nanoTime() + (1E9 * FORWARD_TIME);
+    private int state = 0;
+    private boolean RUNNING = true;
 
     @Override
     public void runOpMode() {
-        TIMER =  System.nanoTime() + (1E9 * FORWARD_TIME);
-
-        /*
-         * Initialize the drive system variables.
-         * The init() method of the hardware class does all the work here
-         */
-        robot.init(hardwareMap);
-
-        // Send telemetry message to signify robot waiting;
-        telemetry.addData("Status", "Resetting Encoders");    //
-        telemetry.addData("Status", TIMER/1E9 + " " + System.nanoTime()/1E9);
-        while (RUNNING)
-        {
-            runLoop();
+        while (RUNNING) {
+            switch (state) {
+                case 0:
+                    runLoop();
+                    break;
+            }
         }
-
-        telemetry.addData("Path", "Complete2: " + TIMER/1E9 + " " + System.nanoTime()/1E9);
-        telemetry.update();
     }
 
     private void runLoop() {
-        //when constructing x set it's value to either 0 or -1, the code below is designed for negative one.
-        //then to wait have this execute at the top of the loop() method:
+        telemetry.addData("driver", "running loop");
+        driveForwardDistance(1.0, 2);
+    }
 
-        //if (x != -1 && System.nanoTime() < TIMER) {
-            move(0.45,0.45);
-            telemetry.addData("Driver", "running");
-            telemetry.update();
+    private void driveForwardDistance(double power, int distance)
+    {
+        /*reset encoders*/
+        robot.leftFrontMotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        robot.leftBackMotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        robot.rightFrontMotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        robot.rightBackMotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+
+        /*set target position*/
+        robot.leftFrontMotor.setTargetPosition((int)(COUNTS_PER_INCH * distance));
+        robot.leftBackMotor.setTargetPosition((int)(COUNTS_PER_INCH * distance));
+        robot.rightFrontMotor.setTargetPosition((int)(COUNTS_PER_INCH * distance));
+        robot.rightBackMotor.setTargetPosition((int)(COUNTS_PER_INCH * distance));
+
+        /*Set to Run to position*/
+        robot.leftFrontMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+        robot.leftBackMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+        robot.rightFrontMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+        robot.rightBackMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+
+        /*Set drive power*/
+        robot.leftFrontMotor.setPower(1.0);
+        robot.leftBackMotor.setPower(1.0);
+        robot.rightFrontMotor.setPower(1.0);
+        robot.rightBackMotor.setPower(1.0);
+
+        while (robot.leftFrontMotor.isBusy() && robot.leftBackMotor.isBusy() && robot.rightFrontMotor.isBusy() && robot.rightBackMotor.isBusy())
+        {
+            telemetry.addData("driver", "busy");
             return;
-        //} else {
-         //   RUNNING = false;
-         //   x = -1;
-        //}
+        }
+        telemetry.addData("driver", "called");
+        /*Stop and change back to normal*/
+        robot.leftFrontMotor.setPower(0);
+        robot.leftBackMotor.setPower(0);
+        robot.rightFrontMotor.setPower(0);
+        robot.rightBackMotor.setPower(0);
+        robot.leftFrontMotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        robot.leftBackMotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        robot.rightFrontMotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        robot.rightBackMotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
     }
 }

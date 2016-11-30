@@ -126,6 +126,9 @@ public class RobotTeleopTank extends OpMode{
         else if (gamepad1.right_trigger > 0.1) { //release
             robot.collectorMotor.setPower(-1);
         }
+        else {
+            robot.collectorMotor.setPower(0);
+        }
         if (gamepad1.left_bumper) {
             telemetry.addData("drive", "beacon");
             telemetry.addData("This is our debug message", "");

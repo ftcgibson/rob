@@ -34,13 +34,20 @@ public class HardwarePushbot
     public static final double ARM_UP_POWER    =  0.45 ;
     public static final double ARM_DOWN_POWER  = -0.45 ;
 
+    private boolean mode = false; //false = teleop true = autonomous
+
     /* local OpMode members. */
     HardwareMap hwMap           =  null;
     private ElapsedTime period  = new ElapsedTime();
 
     /* Constructor */
-    public HardwarePushbot(){
+    public HardwarePushbot()
+    {
+        mode = false;
+    }
 
+    public HardwarePushbot(boolean newMode){
+        mode = newMode;
     }
 
     /* Initialize standard Hardware interfaces */
@@ -49,11 +56,16 @@ public class HardwarePushbot
         hwMap = ahwMap;
 
         // Define and Initialize Motors
-        leftMotor   = hwMap.dcMotor.get("left_drive");
-        rightMotor  = hwMap.dcMotor.get("right_drive");
-        armMotor    = hwMap.dcMotor.get("left_arm");
+        leftMotor = hwMap.dcMotor.get("left_drive");
+        rightMotor = hwMap.dcMotor.get("right_drive");
+        armMotor = hwMap.dcMotor.get("left_arm");
         leftMotor.setDirection(DcMotor.Direction.FORWARD); // Set to REVERSE if using AndyMark motors
         rightMotor.setDirection(DcMotor.Direction.REVERSE);// Set to FORWARD if using AndyMark motors
+
+        if (mode)
+        {
+
+        }
 
         // Set all motors to zero power
         leftMotor.setPower(0);
