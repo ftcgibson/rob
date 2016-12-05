@@ -84,8 +84,8 @@ public class ExpTeleop extends OpMode{
     }
 
     private void move(double left, double right) {
-        robot.leftFrontMotor.setPower(-left);
-        robot.leftBackMotor.setPower(-left);
+        robot.leftFrontMotor.setPower(left);
+        robot.leftBackMotor.setPower(left);
         robot.rightFrontMotor.setPower(right);
         robot.rightBackMotor.setPower(right);
 
@@ -129,21 +129,47 @@ public class ExpTeleop extends OpMode{
 
         if (x > 0 || x < 0) {
             if (y > 0) {
-                move(y - x, y + x);
-                telemetry.addData("Driver","turning moving forward");
+                if (gamepad1.b)
+                {
+                    move((y - x)/3, (y + x)/3);
+                    telemetry.addData("Driver", "turning moving forward slowly");
+                }
+                else {
+                    move(y - x, y + x);
+                    telemetry.addData("Driver", "turning moving forward");
+                }
             }
             else if (y < 0) {
-                move(y + x, y - x);
-                telemetry.addData("Driver","turning moving backward");
+                if (gamepad1.b)
+                {
+                    move((y + x)/3, (y - x)/3);
+                    telemetry.addData("Driver", "turning moving backward slowly");
+                }
+                else {
+                    move(y + x, y - x);
+                    telemetry.addData("Driver", "turning moving backward");
+                }
             }
             else {
-                telemetry.addData("Driver","just turning");
-                move(-x, x);
+                if (gamepad1.b) {
+                    telemetry.addData("Driver","just turning slowly");
+                    move(-x/3, x/3);
+                }
+                else {
+                    telemetry.addData("Driver", "just turning");
+                    move(-x, x);
+                }
             }
         }
         else {
-            telemetry.addData("Driver","just moving");
-            move(y, y);
+            if (gamepad1.b) {
+                telemetry.addData("Driver","just moving slowly");
+                move(y/3, y/3);
+            }
+            else {
+                telemetry.addData("Driver", "just moving");
+                move(y, y);
+            }
         }
 
 

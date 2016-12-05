@@ -67,8 +67,8 @@ public class ExpHardware {
         leftBackMotor    = hwMap.dcMotor.get("lb motor");
         rightBackMotor   = hwMap.dcMotor.get("rb motor");
 
-        leftFrontMotor.setDirection(DcMotor.Direction.FORWARD);
-        leftBackMotor.setDirection(DcMotor.Direction.FORWARD);
+        leftFrontMotor.setDirection(DcMotor.Direction.REVERSE);
+        leftBackMotor.setDirection(DcMotor.Direction.REVERSE);
 
         rightFrontMotor.setDirection(DcMotor.Direction.FORWARD);
         rightBackMotor.setDirection(DcMotor.Direction.FORWARD);

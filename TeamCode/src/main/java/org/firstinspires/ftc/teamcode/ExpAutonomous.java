@@ -69,7 +69,7 @@ import org.firstinspires.ftc.robotcontroller.external.samples.HardwarePushbot;
  * Remove or comment out the @Disabled line to add this opmode to the Driver Station OpMode list
  */
 
-@Autonomous(name="Nalu Autonomous", group="Pushbot")
+@Autonomous(name="Exp Autonomous", group="Pushbot")
 //@Disabled
 public class ExpAutonomous extends LinearOpMode {
 
@@ -100,7 +100,7 @@ public class ExpAutonomous extends LinearOpMode {
                     state++;
                     break;
                 case 1:
-                    if (isBusy())
+                    if (!isBusy())
                     {
                         state++;
                     }
@@ -112,7 +112,7 @@ public class ExpAutonomous extends LinearOpMode {
         telemetry.update();
     }
 
-    private void driveForwardDistance2(double power, int distance)
+    /*private void driveForwardDistance2(double power, int distance)
     {
         if (robot != null)
         {
@@ -145,8 +145,8 @@ public class ExpAutonomous extends LinearOpMode {
         robot.rightFrontMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
         robot.rightBackMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
 
-        robot.leftFrontMotor.setPower(1.0);
-        robot.leftBackMotor.setPower(1.0);
+        robot.leftFrontMotor.setPower(-1.0);
+        robot.leftBackMotor.setPower(-1.0);
         robot.rightFrontMotor.setPower(1.0);
         robot.rightBackMotor.setPower(1.0);
 
@@ -166,6 +166,7 @@ public class ExpAutonomous extends LinearOpMode {
         robot.rightFrontMotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
         robot.rightBackMotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
     }
+    */
 
     private boolean isBusy()
     {
@@ -210,8 +211,8 @@ public class ExpAutonomous extends LinearOpMode {
         robot.rightFrontMotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         robot.rightBackMotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
 
-        robot.leftFrontMotor.setTargetPosition((int)(-COUNTS_PER_INCH * distance));
-        robot.leftBackMotor.setTargetPosition((int)(-COUNTS_PER_INCH * distance));
+        robot.leftFrontMotor.setTargetPosition((int)(COUNTS_PER_INCH * distance));
+        robot.leftBackMotor.setTargetPosition((int)(COUNTS_PER_INCH * distance));
         robot.rightFrontMotor.setTargetPosition((int)(COUNTS_PER_INCH * distance));
         robot.rightBackMotor.setTargetPosition((int)(COUNTS_PER_INCH * distance));
 
@@ -220,8 +221,8 @@ public class ExpAutonomous extends LinearOpMode {
         robot.rightFrontMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
         robot.rightBackMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
 
-        robot.leftFrontMotor.setPower(-1.0);
-        robot.leftBackMotor.setPower(-1.0);
+        robot.leftFrontMotor.setPower(1.0);
+        robot.leftBackMotor.setPower(1.0);
         robot.rightFrontMotor.setPower(1.0);
         robot.rightBackMotor.setPower(1.0);
 
