@@ -36,8 +36,8 @@ import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.util.ElapsedTime;
 import com.qualcomm.robotcore.util.Range;
-
-import org.firstinspires.ftc.robotcontroller.external.samples.HardwarePushbot;
+import com.qualcomm.robotcore.eventloop.opmode.OpMode;
+import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 
 /**
  * This file illustrates the concept of driving a path based on Gyro heading and encoder counts.
@@ -72,9 +72,9 @@ import org.firstinspires.ftc.robotcontroller.external.samples.HardwarePushbot;
  * Remove or comment out the @Disabled line to add this opmode to the Driver Station OpMode list
  */
 
-@Autonomous(name="Gyro Autonomous", group="Pushbot")
+@TeleOp(name="Gyro Teleop", group="Pushbot")
 //@Disabled
-public class GyroAutonomous extends LinearOpMode {
+public class GyroTeleop extends OpMode {
 
     /* Declare OpMode members. */
     ExpHardware robot   = new ExpHardware(true);   // Use a Pushbot's hardware
@@ -97,7 +97,7 @@ public class GyroAutonomous extends LinearOpMode {
 
 
     @Override
-    public void runOpMode() {
+    public void init() {
 
         /*
          * Initialize the standard drive system variables.
@@ -119,9 +119,8 @@ public class GyroAutonomous extends LinearOpMode {
         gyro.calibrate();
 
         // make sure the gyro is calibrated before continuing
-        while (!isStopRequested() && gyro.isCalibrating())  {
-            sleep(50);
-            idle();
+        while (gyro.isCalibrating())  {
+            telemetry.addData("gyro", "calibrating");
         }
 
         telemetry.addData(">", "Robot Ready.");    //
@@ -132,19 +131,12 @@ public class GyroAutonomous extends LinearOpMode {
         robot.rightFrontMotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
         robot.rightBackMotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
 
-        // Wait for the game to start (Display Gyro value), and reset gyro before we move..
-        while (!isStarted()) {
-            telemetry.addData(">", "Robot Heading = %d", gyro.getIntegratedZValue());
-            telemetry.update();
-            idle();
-        }
         gyro.resetZAxisIntegrator();
 
         // Step through each leg of the path,
         // Note: Reverse movement is obtained by setting a negative distance (not speed)
         // Put a hold after each turn
-        gyroDrive(DRIVE_SPEED, 48.0, 0.0);    // Drive FWD 48 inches
-        //gyroTurn( TURN_SPEED, -45.0);         // Turn  CCW to -45 Degrees
+        // Turn  CCW to -45 Degrees
         //gyroHold( TURN_SPEED, -45.0, 0.5);    // Hold -45 Deg heading for a 1/2 second
         //gyroTurn( TURN_SPEED,  45.0);         // Turn  CW  to  45 Degrees
         //gyroHold( TURN_SPEED,  45.0, 0.5);    // Hold  45 Deg heading for a 1/2 second
@@ -157,6 +149,14 @@ public class GyroAutonomous extends LinearOpMode {
         telemetry.update();
     }
 
+    @Override
+    public void loop()
+    {
+        double x = gamepad1.left_stick_x;
+        double y = gamepad1.left_stick_y;
+        double angle = Math.atan2(y, x);
+        gyroDrive(DRIVE_SPEED, 2.0, angle);    // Drive FWD 48 inches
+    }
 
    /**
     *  Method to drive on a fixed compass bearing (angle), based on encoder counts.
@@ -184,8 +184,6 @@ public class GyroAutonomous extends LinearOpMode {
         double  rightSpeed;
 
         // Ensure that the opmode is still active
-        if (opModeIsActive()) {
-
             // Determine new target position, and pass to motor controller
             moveCounts = (int)(distance * COUNTS_PER_INCH);
             newLeftTarget = robot.leftFrontMotor.getCurrentPosition() + moveCounts;
@@ -213,41 +211,39 @@ public class GyroAutonomous extends LinearOpMode {
             robot.rightBackMotor.setPower(speed);
 
             // keep looping while we are still active, and BOTH motors are running.
-            while (opModeIsActive() &&
-                   (robot.leftFrontMotor.isBusy() && robot.leftBackMotor.isBusy() && robot.rightFrontMotor.isBusy() && robot.rightBackMotor.isBusy())) {
+            while ((robot.leftFrontMotor.isBusy() && robot.leftBackMotor.isBusy() && robot.rightFrontMotor.isBusy() && robot.rightBackMotor.isBusy())) {
 
-                // adjust relative speed based on heading error.
-                error = getError(angle);
-                steer = getSteer(error, P_DRIVE_COEFF);
+            // adjust relative speed based on heading error.
+            error = getError(angle);
+            steer = getSteer(error, P_DRIVE_COEFF);
 
-                // if driving in reverse, the motor correction also needs to be reversed
-                if (distance < 0)
-                    steer *= -1.0;
+            // if driving in reverse, the motor correction also needs to be reversed
+            if (distance < 0)
+                steer *= -1.0;
 
-                leftSpeed = speed - steer;
-                rightSpeed = speed + steer;
+            leftSpeed = speed - steer;
+            rightSpeed = speed + steer;
 
-                // Normalize speeds if any one exceeds +/- 1.0;
-                max = Math.max(Math.abs(leftSpeed), Math.abs(rightSpeed));
-                if (max > 1.0)
-                {
-                    leftSpeed /= max;
-                    rightSpeed /= max;
-                }
-
-                robot.leftFrontMotor.setPower(leftSpeed);
-                robot.leftBackMotor.setPower(leftSpeed);
-                robot.rightFrontMotor.setPower(rightSpeed);
-                robot.rightBackMotor.setPower(rightSpeed);
-
-                // Display drive status for the driver.
-                telemetry.addData("Err/St",  "%5.1f/%5.1f",  error, steer);
-                telemetry.addData("Target",  "%7d:%7d",      newLeftTarget,  newRightTarget);
-                telemetry.addData("Actual",  "%7d:%7d",      robot.leftFrontMotor.getCurrentPosition(),
-                                                             robot.rightFrontMotor.getCurrentPosition());
-                telemetry.addData("Speed",   "%5.2f:%5.2f",  leftSpeed, rightSpeed);
-                telemetry.update();
+            // Normalize speeds if any one exceeds +/- 1.0;
+            max = Math.max(Math.abs(leftSpeed), Math.abs(rightSpeed));
+            if (max > 1.0)
+            {
+                leftSpeed /= max;
+                rightSpeed /= max;
             }
+
+            robot.leftFrontMotor.setPower(leftSpeed);
+            robot.leftBackMotor.setPower(leftSpeed);
+            robot.rightFrontMotor.setPower(rightSpeed);
+            robot.rightBackMotor.setPower(rightSpeed);
+
+            // Display drive status for the driver.
+            telemetry.addData("Err/St",  "%5.1f/%5.1f",  error, steer);
+            telemetry.addData("Target",  "%7d:%7d",      newLeftTarget,  newRightTarget);
+            telemetry.addData("Actual",  "%7d:%7d",      robot.leftFrontMotor.getCurrentPosition(),
+                                                         robot.rightFrontMotor.getCurrentPosition());
+            telemetry.addData("Speed",   "%5.2f:%5.2f",  leftSpeed, rightSpeed);
+            telemetry.update();
 
             // Stop all motion;
             robot.leftFrontMotor.setPower(0);
@@ -277,7 +273,7 @@ public class GyroAutonomous extends LinearOpMode {
     public void gyroTurn (  double speed, double angle) {
 
         // keep looping while we are still active, and not on heading.
-        while (opModeIsActive() && !onHeading(speed, angle, P_TURN_COEFF)) {
+        while (!onHeading(speed, angle, P_TURN_COEFF)) {
             // Update telemetry & Allow time for other processes to run.
             telemetry.update();
         }
@@ -299,7 +295,7 @@ public class GyroAutonomous extends LinearOpMode {
 
         // keep looping while we have time remaining.
         holdTimer.reset();
-        while (opModeIsActive() && (holdTimer.time() < holdTime)) {
+        while ((holdTimer.time() < holdTime)) {
             // Update telemetry & Allow time for other processes to run.
             onHeading(speed, angle, P_TURN_COEFF);
             telemetry.update();

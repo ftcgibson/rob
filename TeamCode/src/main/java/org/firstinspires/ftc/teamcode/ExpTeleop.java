@@ -40,7 +40,7 @@ import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 public class ExpTeleop extends OpMode{
 
     /* Declare OpMode members. */
-    org.firstinspires.ftc.teamcode.ExpHardware robot       = new org.firstinspires.ftc.teamcode.ExpHardware();
+    org.firstinspires.ftc.teamcode.ExpHardware robot       = new org.firstinspires.ftc.teamcode.ExpHardware(true);
     /*
      * Code to run ONCE when the driver hits INIT
      */

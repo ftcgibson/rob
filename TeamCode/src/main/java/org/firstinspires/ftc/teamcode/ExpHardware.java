@@ -40,20 +40,17 @@ public class ExpHardware {
     public static final double BACKWARD_TURN_POWER = -0.2;
     public static final double STOP_POWER = 0.0;
 
-    private boolean AUT_MODE = false;
+    //private boolean AUT_MODE = false;
 
     /* local OpMode members. */
     HardwareMap hwMap = null;
     private ElapsedTime period = new ElapsedTime();
 
+    private boolean direction; //false = backwards
     /* Constructor */
-    public ExpHardware() {
-        AUT_MODE = false;
-    }
-
-    public ExpHardware(boolean newMode)
-    {
-        AUT_MODE = newMode;
+    public ExpHardware(boolean newDirection) {
+        //AUT_MODE = false;
+        direction = newDirection;
     }
 
     /* Initialize standard Hardware interfaces */
@@ -67,12 +64,20 @@ public class ExpHardware {
         leftBackMotor    = hwMap.dcMotor.get("lb motor");
         rightBackMotor   = hwMap.dcMotor.get("rb motor");
 
-        leftFrontMotor.setDirection(DcMotor.Direction.REVERSE);
-        leftBackMotor.setDirection(DcMotor.Direction.REVERSE);
+        if (direction) {
+            leftFrontMotor.setDirection(DcMotor.Direction.REVERSE);
+            leftBackMotor.setDirection(DcMotor.Direction.REVERSE);
 
-        rightFrontMotor.setDirection(DcMotor.Direction.FORWARD);
-        rightBackMotor.setDirection(DcMotor.Direction.FORWARD);
+            rightFrontMotor.setDirection(DcMotor.Direction.FORWARD);
+            rightBackMotor.setDirection(DcMotor.Direction.FORWARD);
+        }
+        else {
+            leftFrontMotor.setDirection(DcMotor.Direction.FORWARD);
+            leftBackMotor.setDirection(DcMotor.Direction.FORWARD);
 
+            rightFrontMotor.setDirection(DcMotor.Direction.REVERSE);
+            rightBackMotor.setDirection(DcMotor.Direction.REVERSE);
+        }
         // Set all motors to zero power
         leftFrontMotor.setPower(0);
         rightFrontMotor.setPower(0);
@@ -81,7 +86,7 @@ public class ExpHardware {
 
         // Set all motors to run without encoders.
         // May want to use RUN_USING_ENCODERS if encoders are installed.
-        if (AUT_MODE) {
+        /*if (AUT_MODE) {
             leftFrontMotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
             rightFrontMotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
             leftBackMotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
@@ -92,7 +97,7 @@ public class ExpHardware {
             rightFrontMotor.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
             leftBackMotor.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
             rightBackMotor.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
-        }
+        }*/
 
         // Define and initialize ALL installed servos.
         // leftClaw = hwMap.servo.get("left claw");
