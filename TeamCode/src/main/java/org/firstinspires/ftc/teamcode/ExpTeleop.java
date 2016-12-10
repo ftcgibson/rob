@@ -40,7 +40,7 @@ import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 public class ExpTeleop extends OpMode{
 
     /* Declare OpMode members. */
-    org.firstinspires.ftc.teamcode.ExpHardware robot       = new org.firstinspires.ftc.teamcode.ExpHardware(true);
+    org.firstinspires.ftc.teamcode.RobotHardware robot       = new org.firstinspires.ftc.teamcode.RobotHardware(false);
     /*
      * Code to run ONCE when the driver hits INIT
      */
@@ -126,6 +126,9 @@ public class ExpTeleop extends OpMode{
         y = (Math.abs(y) < THRESHOLD) ? 0 : y;
 
         telemetry.addData("Driver", x + " " + y);
+
+        //robot.shooter.setPower(gamepad1.right_trigger);
+        //robot.collector.setPower(gamepad1.left_trigger);
 
         if (x > 0 || x < 0) {
             if (y > 0) {

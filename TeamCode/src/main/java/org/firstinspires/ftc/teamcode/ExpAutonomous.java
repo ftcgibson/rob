@@ -74,7 +74,7 @@ import org.firstinspires.ftc.robotcontroller.external.samples.HardwarePushbot;
 public class ExpAutonomous extends LinearOpMode {
 
     /* Declare OpMode members. */
-    org.firstinspires.ftc.teamcode.ExpHardware robot = new org.firstinspires.ftc.teamcode.ExpHardware();
+    org.firstinspires.ftc.teamcode.ExpHardware robot = new org.firstinspires.ftc.teamcode.ExpHardware(false);
     private ElapsedTime runtime = new ElapsedTime();
 
     static final double COUNTS_PER_MOTOR_REV = 1440;    // eg: TETRIX Motor Encoder
