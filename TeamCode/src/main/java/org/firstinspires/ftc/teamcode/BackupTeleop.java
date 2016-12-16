@@ -35,19 +35,18 @@ package org.firstinspires.ftc.teamcode;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 
-@TeleOp(name="Nalu Teleop 2", group="Pushbot")
+@TeleOp(name="Backup Teleop", group="Pushbot")
 //@Disabled
-public class ExpTeleop extends OpMode{
+public class BackupTeleop extends OpMode{
 
     /* Declare OpMode members. */
-    org.firstinspires.ftc.teamcode.RobotHardware robot       = new org.firstinspires.ftc.teamcode.RobotHardware(false);
+    ExpHardware robot       = new ExpHardware(false);
     /*
      * Code to run ONCE when the driver hits INIT
      */
 
-    private final double THRESHOLD = 0.05;
-    private final double SLOWDOWN_FACTOR = 3.0;
-    private final double SHOOT_TIME = 2.0;
+    private final double THRESHOLD = 0.1;
+
 
     @Override
     public void init() {
@@ -118,60 +117,64 @@ public class ExpTeleop extends OpMode{
 
         // Use gamepad buttons to drive up, down, left, or right
         //press a to launch beacon0
-        telemetry.addData("Motor Power: ", "shooter: " + robot.shooter.getPower() +
-                                            " collector: " + robot.collector.getPower() +
-                                            " left front: " + robot.leftFrontMotor.getPower() +
-                                            " left back: " + robot.leftBackMotor.getPower() +
-                                            " right front: " + robot.rightFrontMotor.getPower() +
-                                            " right back: " + robot.rightBackMotor.getPower());
-        double y = gamepad1.left_stick_y;
-        double x = gamepad1.right_stick_x;
+        double y = 0 - gamepad1.left_stick_y;
+        double x = 0 - gamepad1.right_stick_x;
 
 
         x = (Math.abs(x) < THRESHOLD) ? 0 : x;
         y = (Math.abs(y) < THRESHOLD) ? 0 : y;
 
-        double shooterPower = gamepad1.right_trigger;
-        double collectorPower = gamepad1.left_trigger;
-        long rotateTime = 500;
-        Thread.sleep(rotateTime);
-        //double shooterPower = 0;
-        //double collectorPower = 0;
-
-        robot.shooter.setPower(shooterPower);
-        if (gamepad1.left_bumper)
-        {
-            robot.collector.setPower(-1.0);
-        }
-        else
-        {
-            robot.collector.setPower(collectorPower);
-        }
-
-        if (gamepad1.b) {
-            x /= SLOWDOWN_FACTOR;
-            y /= SLOWDOWN_FACTOR;
-        }
+        //double shooterPower = gamepad1.right_trigger;
+        //double collectorPower = gamepad1.left_trigger;
+        double shooterPower = 0;
+        double collectorPower = 0;
 
         telemetry.addData("Controller: ", "b: " + gamepad1.b + " right trigger: " + gamepad1.right_trigger + " left trigger: " + gamepad1.left_trigger + " x: " + x + " y: " + y);
         if (x != 0) {
             if (y > 0) {
-                move(y - x, y + x);
-                telemetry.addData("Driver", "fwd + turn");
+                if (gamepad1.b)
+                {
+                    move((y - x)/3, (y + x)/3);
+                    telemetry.addData("Driver", "turning moving forward slowly");
+                }
+                else {
+                    move(y - x, y + x);
+                    telemetry.addData("Driver", "turning moving forward");
+                }
             }
             else if (y < 0) {
-                move(y + x, y - x);
-                telemetry.addData("Driver", "bwd + turn");
+                if (gamepad1.b)
+                {
+                    move((y + x)/3, (y - x)/3);
+                    telemetry.addData("Driver", "turning moving backward slowly");
+                }
+                else {
+                    move(y + x, y - x);
+                    telemetry.addData("Driver", "turning moving backward");
+                }
             }
             else {
-                 telemetry.addData("Driver", "turning");
-                 move(-x, x);
+                if (gamepad1.b) {
+                    telemetry.addData("Driver","just turning slowly");
+                    move(-x/3, x/3);
+                }
+                else {
+                    telemetry.addData("Driver", "just turning");
+                    move(-x, x);
+                }
             }
         }
         else {
-            telemetry.addData("Driver", "moving");
-            move(y, y);
+            if (gamepad1.b) {
+                telemetry.addData("Driver","just moving slowly");
+                move(y/3, y/3);
+            }
+            else {
+                telemetry.addData("Driver", "just moving");
+                move(y, y);
+            }
         }
+
 
         /* if (gamepad1.right_stick_x > 0 && gamepad1.left_stick_y > 0) //turn right while moving forward
         {
@@ -249,16 +252,6 @@ public class ExpTeleop extends OpMode{
 
         //telemetry.addData("right", "%.2f", right);
         updateTelemetry(telemetry);
-    }
-
-
-    private void shoot() {
-        long startTime = System.nanoTime();
-        while(System.nanoTime()- startTime < SHOOT_TIME) {
-            robot.shooter.setPower(1.0);
-        }
-        robot.shooter.setPower(0);
-
     }
 
     /*
