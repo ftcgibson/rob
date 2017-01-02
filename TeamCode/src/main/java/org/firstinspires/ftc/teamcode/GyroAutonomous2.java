@@ -30,14 +30,14 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 package org.firstinspires.ftc.teamcode;
 
+import android.graphics.Color;
+
 import com.qualcomm.hardware.modernrobotics.ModernRoboticsI2cGyro;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.util.ElapsedTime;
 import com.qualcomm.robotcore.util.Range;
-
-import org.firstinspires.ftc.robotcontroller.external.samples.HardwarePushbot;
 
 /**
  * This file illustrates the concept of driving a path based on Gyro heading and encoder counts.
@@ -72,9 +72,9 @@ import org.firstinspires.ftc.robotcontroller.external.samples.HardwarePushbot;
  * Remove or comment out the @Disabled line to add this opmode to the Driver Station OpMode list
  */
 
-@Autonomous(name="Drive and Park", group="Pushbot")
+@Autonomous(name="Push Beacons Blue Team", group="Pushbot")
 //@Disabled
-public class GyroAutonomous extends LinearOpMode {
+public class GyroAutonomous2 extends LinearOpMode {
 
     /* Declare OpMode members. */
     RobotHardware robot   = new RobotHardware(true);   // Use a Pushbot's hardware
@@ -95,7 +95,9 @@ public class GyroAutonomous extends LinearOpMode {
     static final double     P_TURN_COEFF            = 0.1;     // Larger is more responsive, but also less stable
     static final double     P_DRIVE_COEFF           = 0.15;     // Larger is more responsive, but also less stable
 
-
+    static final double     BEACON_RED              = 0.0;
+    static final double     BEACON_BLUE             = 160.0;
+    static final double     BEACON_THRESHOLD        = 10.0;
     @Override
     public void runOpMode() {
 
@@ -143,7 +145,14 @@ public class GyroAutonomous extends LinearOpMode {
         // Step through each leg of the path,
         // Note: Reverse movement is obtained by setting a negative distance (not speed)
         // Put a hold after each turn
-        gyroDrive(DRIVE_SPEED, 48.0, 0.0);    // Drive FWD 48 inches
+
+        //BEGIN MOVEMENT
+        gyroTurn(   TURN_SPEED,   45.0);
+        gyroDrive(  DRIVE_SPEED,  44.0, 0.0);
+        gyroTurn(   TURN_SPEED,   0.0 );
+        gyroDrive(  DRIVE_SPEED,  21.0, 0.0); //get to first beacon
+        pushBeacon(true);
+        //gyroDrive(DRIVE_SPEED, 48.0, 0.0);    // Drive FWD 48 inches
         //gyroTurn( TURN_SPEED, -45.0);         // Turn  CCW to -45 Degrees
         //gyroHold( TURN_SPEED, -45.0, 0.5);    // Hold -45 Deg heading for a 1/2 second
         //gyroTurn( TURN_SPEED,  45.0);         // Turn  CW  to  45 Degrees
@@ -157,6 +166,33 @@ public class GyroAutonomous extends LinearOpMode {
         telemetry.update();
     }
 
+    public void pushBeacon(boolean isFirst)
+    {
+        float[] hsv = {0F, 0F, 0F};
+        Color.RGBToHSV(robot.sensor.red() * 8, robot.sensor.green() * 8, robot.sensor.blue() * 8, hsv);
+        telemetry.addData("h", hsv[0]);
+        telemetry.addData("s", hsv[1]);
+        telemetry.addData("v", hsv[2]);
+        telemetry.update();
+
+        if (Math.abs(hsv[0] - BEACON_BLUE) < BEACON_THRESHOLD) {
+            robot.pusher.setPosition(1.0);
+            while (robot.pusher.getPosition() < 1.0)
+            {
+
+            }
+            robot.pusher.setPosition(0.0);
+            if (isFirst) {
+                gyroDrive(DRIVE_SPEED, 5.5, 0.0);
+            }
+        }
+        else {
+            if (isFirst) {
+                gyroDrive(DRIVE_SPEED, 5.5, 0.0);
+                pushBeacon(false);
+            }
+        }
+    }
 
    /**
     *  Method to drive on a fixed compass bearing (angle), based on encoder counts.

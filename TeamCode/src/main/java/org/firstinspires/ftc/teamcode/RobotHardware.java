@@ -3,6 +3,7 @@ package org.firstinspires.ftc.teamcode;
 import com.qualcomm.robotcore.hardware.ColorSensor;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
+import com.qualcomm.robotcore.hardware.GyroSensor;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.hardware.Servo;
 import com.qualcomm.robotcore.util.ElapsedTime;
@@ -33,6 +34,7 @@ public class RobotHardware {
     public ColorSensor  sensor = null;
     public DcMotor collector = null;
     public DcMotor shooter = null;
+    public GyroSensor gyro = null;
     //public Servo    leftClaw        = null;
     //public Servo    rightClaw       = null;
     //public Servo    backClaw        = null;
@@ -73,6 +75,7 @@ public class RobotHardware {
         sensor           = hwMap.colorSensor.get("sensor");
         collector        = hwMap.dcMotor.get("collector");
         shooter          = hwMap.dcMotor.get("shooter");
+        gyro             = hwMap.gyroSensor.get("gyro");
 
         if (direction) {
             leftFrontMotor.setDirection(DcMotor.Direction.REVERSE);
@@ -89,8 +92,8 @@ public class RobotHardware {
             rightBackMotor.setDirection(DcMotor.Direction.REVERSE);
         }
 
-        collector.setDirection (DcMotor.Direction.REVERSE);
-        shooter.setDirection (DcMotor.Direction.FORWARD);
+        collector.setDirection (DcMotor.Direction.FORWARD);
+        shooter.setDirection (DcMotor.Direction.REVERSE);
 
         // Set all motors to zero power
         leftFrontMotor.setPower(0);
