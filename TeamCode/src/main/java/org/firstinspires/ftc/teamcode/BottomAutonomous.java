@@ -33,11 +33,10 @@ package org.firstinspires.ftc.teamcode;
 import com.qualcomm.hardware.modernrobotics.ModernRoboticsI2cGyro;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
+import com.qualcomm.robotcore.hardware.ColorSensor;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.util.ElapsedTime;
 import com.qualcomm.robotcore.util.Range;
-
-import org.firstinspires.ftc.robotcontroller.external.samples.HardwarePushbot;
 
 /**
  * This file illustrates the concept of driving a path based on Gyro heading and encoder counts.
@@ -72,12 +71,12 @@ import org.firstinspires.ftc.robotcontroller.external.samples.HardwarePushbot;
  * Remove or comment out the @Disabled line to add this opmode to the Driver Station OpMode list
  */
 
-@Autonomous(name="Gyro Autonomous", group="Pushbot")
+@Autonomous(name="Autonomous with Color Sensor", group="Pushbot")
 //@Disabled
-public class GyroAutonomous extends LinearOpMode {
+public class BottomAutonomous extends LinearOpMode {
 
     /* Declare OpMode members. */
-    ExpHardware robot   = new ExpHardware(true);   // Use a Pushbot's hardware
+    RobotHardware robot   = new RobotHardware(true);   // Use a Pushbot's hardware
     ModernRoboticsI2cGyro   gyro    = null;                    // Additional Gyro device
 
     static final double     COUNTS_PER_MOTOR_REV    = 1440 ;    // eg: TETRIX Motor Encoder
@@ -95,6 +94,9 @@ public class GyroAutonomous extends LinearOpMode {
     static final double     P_TURN_COEFF            = 0.1;     // Larger is more responsive, but also less stable
     static final double     P_DRIVE_COEFF           = 0.15;     // Larger is more responsive, but also less stable
 
+    private void execDrive() {
+        System.out.println("Hello World!");
+    }
 
     @Override
     public void runOpMode() {
@@ -143,7 +145,7 @@ public class GyroAutonomous extends LinearOpMode {
         // Step through each leg of the path,
         // Note: Reverse movement is obtained by setting a negative distance (not speed)
         // Put a hold after each turn
-        gyroDrive(DRIVE_SPEED, 48.0, 0.0);    // Drive FWD 48 inches
+        //gyroDrive(DRIVE_SPEED, 48.0, 0.0);    // Drive FWD 48 inches
         //gyroTurn( TURN_SPEED, -45.0);         // Turn  CCW to -45 Degrees
         //gyroHold( TURN_SPEED, -45.0, 0.5);    // Hold -45 Deg heading for a 1/2 second
         //gyroTurn( TURN_SPEED,  45.0);         // Turn  CW  to  45 Degrees
@@ -152,6 +154,9 @@ public class GyroAutonomous extends LinearOpMode {
         //gyroHold( TURN_SPEED,   0.0, 1.0);    // Hold  0 Deg heading for a 1 second
         //gyroDrive(DRIVE_SPEED,-48.0, 0.0);    // Drive REV 48 inches
         //gyroHold( TURN_SPEED,   0.0, 0.5);    // Hold  0 Deg heading for a 1/2 second
+
+        ColorSensor cs = robot.bottomSensor;
+        execDrive();
 
         telemetry.addData("Path", "Complete");
         telemetry.update();

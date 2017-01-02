@@ -143,9 +143,9 @@ public class RobotAutonomous extends LinearOpMode {
         // Step through each leg of the path,
         // Note: Reverse movement is obtained by setting a negative distance (not speed)
         // Put a hold after each turn
-        gyroTurn( TURN_SPEED,   -45.0);
-        gyroDrive(DRIVE_SPEED,  51.0, 0.0);
-        gyroTurn( TURN_SPEED,   45.0);
+        gyroTurn    (TURN_SPEED,  -45.0);
+        gyroDrive   (DRIVE_SPEED,  51.0, 0.0);
+        gyroTurn    (TURN_SPEED,   45.0);
         pushBeacon();
         //gyroDrive(DRIVE_SPEED, 48.0, 0.0);    // Drive FWD 48 inches
         //gyroTurn( TURN_SPEED, -45.0);         // Turn  CCW to -45 Degrees

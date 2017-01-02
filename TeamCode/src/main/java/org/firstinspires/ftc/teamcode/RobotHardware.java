@@ -31,6 +31,7 @@ public class RobotHardware {
     public DcMotor rightBackMotor = null;
     public Servo   pusher = null;
     public ColorSensor  sensor = null;
+    public ColorSensor  bottomSensor = null;
     public DcMotor collector = null;
     public DcMotor shooter = null;
     //public Servo    leftClaw        = null;
@@ -71,6 +72,7 @@ public class RobotHardware {
         rightBackMotor   = hwMap.dcMotor.get("rb motor");
         pusher           = hwMap.servo.get("pusher");
         sensor           = hwMap.colorSensor.get("sensor");
+        bottomSensor     = hwMap.colorSensor.get("bottom sensor");
         collector        = hwMap.dcMotor.get("collector");
         shooter          = hwMap.dcMotor.get("shooter");
 
@@ -89,7 +91,7 @@ public class RobotHardware {
             rightBackMotor.setDirection(DcMotor.Direction.REVERSE);
         }
 
-        collector.setDirection (DcMotor.Direction.REVERSE);
+        collector.setDirection (DcMotor.Direction.FORWARD);
         shooter.setDirection (DcMotor.Direction.FORWARD);
 
         // Set all motors to zero power

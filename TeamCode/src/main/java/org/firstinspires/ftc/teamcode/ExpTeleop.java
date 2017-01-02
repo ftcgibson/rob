@@ -134,7 +134,7 @@ public class ExpTeleop extends OpMode{
         double shooterPower = gamepad1.right_trigger;
         double collectorPower = gamepad1.left_trigger;
         long rotateTime = 500;
-        Thread.sleep(rotateTime);
+        //Thread.sleep(rotateTime);
         //double shooterPower = 0;
         //double collectorPower = 0;
 
@@ -151,6 +151,7 @@ public class ExpTeleop extends OpMode{
         if (gamepad1.b) {
             x /= SLOWDOWN_FACTOR;
             y /= SLOWDOWN_FACTOR;
+            telemetry.addData("Driver", "slowed down");
         }
 
         telemetry.addData("Controller: ", "b: " + gamepad1.b + " right trigger: " + gamepad1.right_trigger + " left trigger: " + gamepad1.left_trigger + " x: " + x + " y: " + y);
@@ -173,80 +174,6 @@ public class ExpTeleop extends OpMode{
             move(y, y);
         }
 
-        /* if (gamepad1.right_stick_x > 0 && gamepad1.left_stick_y > 0) //turn right while moving forward
-        {
-            /*robot.leftBackMotor.setPower(robot.TURN_POWER);
-            robot.rightBackMotor.setPower(robot.FORWARD_POWER);
-            robot.leftFrontMotor.setPower(robot.TURN_POWER);
-            robot.rightFrontMotor.setPower(robot.FORWARD_POWER);
-
-            moveSide(Direction.LEFT, robot.TURN_POWER);
-            moveSide(Direction.RIGHT, robot.FORWARD_POWER);
-            telemetry.addData("drive", "right forward");
-        }
-        else if (gamepad1.right_stick_x < 0 && gamepad1.left_stick_y > 0) //turn left while moving forward
-        {
-            robot.leftBackMotor.setPower(robot.FORWARD_POWER);
-            robot.rightBackMotor.setPower(robot.TURN_POWER);
-            robot.leftFrontMotor.setPower(robot.FORWARD_POWER);
-            robot.rightFrontMotor.setPower(robot.TURN_POWER);
-            telemetry.addData("drive", "left forward");
-        }
-        else if (gamepad1.right_stick_x > 0 && gamepad1.left_stick_y < 0) //turn right while moving backwards
-        {
-            robot.leftBackMotor.setPower(robot.BACKWARD_TURN_POWER);
-            robot.rightBackMotor.setPower(robot.BACKWARD_POWER);
-            robot.leftFrontMotor.setPower(robot.BACKWARD_TURN_POWER);
-            robot.rightFrontMotor.setPower(robot.BACKWARD_POWER);
-            telemetry.addData("drive", "right backwards");
-        }
-        else if (gamepad1.right_stick_x > 0 && gamepad1.left_stick_y > 0) //turn left while moving backwards
-        {
-            robot.leftBackMotor.setPower(robot.BACKWARD_POWER);
-            robot.rightBackMotor.setPower(robot.BACKWARD_TURN_POWER);
-            robot.leftFrontMotor.setPower(robot.BACKWARD_POWER);
-            robot.rightFrontMotor.setPower(robot.BACKWARD_TURN_POWER);
-            telemetry.addData("drive", "left backwards");
-        }
-        else if (gamepad1.left_stick_y > 0) { //forward
-            robot.leftBackMotor.setPower(robot.FORWARD_POWER);
-            robot.rightBackMotor.setPower(robot.FORWARD_POWER);
-            robot.leftFrontMotor.setPower(robot.FORWARD_POWER);
-            robot.rightFrontMotor.setPower(robot.FORWARD_POWER);
-            telemetry.addData("drive", "forwards");
-        }
-        else if (gamepad1.left_stick_y < 0){ //backward
-            robot.leftBackMotor.setPower(robot.BACKWARD_POWER);
-            robot.rightBackMotor.setPower(robot.BACKWARD_POWER);
-            robot.leftFrontMotor.setPower(robot.BACKWARD_POWER);
-            robot.rightFrontMotor.setPower(robot.BACKWARD_POWER);
-            telemetry.addData("drive", "backwards");
-        }
-        else if (gamepad1.right_stick_x > 0){ //turn right
-            robot.leftBackMotor.setPower(robot.BACKWARD_POWER);
-            robot.rightBackMotor.setPower(robot.FORWARD_POWER);
-            robot.leftFrontMotor.setPower(robot.BACKWARD_POWER);
-            robot.rightFrontMotor.setPower(robot.FORWARD_POWER);
-            telemetry.addData("drive", "turn right");
-        }
-        else if (gamepad1.right_stick_x < 0){ //turn left
-            robot.leftBackMotor.setPower(robot.FORWARD_POWER);
-            robot.rightBackMotor.setPower(robot.BACKWARD_POWER);
-            robot.leftFrontMotor.setPower(robot.FORWARD_POWER);
-            robot.rightFrontMotor.setPower(robot.BACKWARD_POWER);
-            telemetry.addData("drive", "turn left");
-        }
-        else {
-            robot.leftBackMotor.setPower(robot.STOP_POWER);
-            robot.rightBackMotor.setPower(robot.STOP_POWER);
-            robot.leftFrontMotor.setPower(robot.STOP_POWER);
-            robot.rightFrontMotor.setPower(robot.STOP_POWER);
-        }
-        */
-
-
-
-
         //telemetry.addData("right", "%.2f", right);
         updateTelemetry(telemetry);
     }
@@ -258,7 +185,6 @@ public class ExpTeleop extends OpMode{
             robot.shooter.setPower(1.0);
         }
         robot.shooter.setPower(0);
-
     }
 
     /*
