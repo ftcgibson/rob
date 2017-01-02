@@ -100,7 +100,8 @@ public class RobotHardware {
         rightFrontMotor.setPower(0);
         leftBackMotor.setPower(0);
         rightBackMotor.setPower(0);
-
+        collector.setPower(0);
+        shooter.setPower(0);
         // Set all motors to run without encoders.
         // May want to use RUN_USING_ENCODERS if encoders are installed.
         /*if (AUT_MODE) {
