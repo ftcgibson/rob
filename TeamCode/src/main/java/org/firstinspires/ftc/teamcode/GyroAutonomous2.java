@@ -77,7 +77,7 @@ import com.qualcomm.robotcore.util.Range;
 public class GyroAutonomous2 extends LinearOpMode {
 
     /* Declare OpMode members. */
-    RobotHardware robot   = new RobotHardware(true);   // Use a Pushbot's hardware
+    RobotHardware robot   = new RobotHardware(false);   // Use a Pushbot's hardware
     ModernRoboticsI2cGyro   gyro    = null;                    // Additional Gyro device
 
     static final double     COUNTS_PER_MOTOR_REV    = 1440 ;    // eg: TETRIX Motor Encoder
@@ -91,13 +91,24 @@ public class GyroAutonomous2 extends LinearOpMode {
     static final double     DRIVE_SPEED             = 0.7;     // Nominal speed for better accuracy.
     static final double     TURN_SPEED              = 0.5;     // Nominal half speed for better accuracy.
 
-    static final double     HEADING_THRESHOLD       = 1 ;      // As tight as we can make it with an integer gyro
-    static final double     P_TURN_COEFF            = 0.1;     // Larger is more responsive, but also less stable
+    static final double     HEADING_THRESHOLD       = 2 ;      // As tight as we can make it with an integer gyro
+    static final double     P_TURN_COEFF            = 0.05;     // Larger is more responsive, but also less stable
     static final double     P_DRIVE_COEFF           = 0.15;     // Larger is more responsive, but also less stable
 
     static final double     BEACON_RED              = 0.0;
     static final double     BEACON_BLUE             = 160.0;
     static final double     BEACON_THRESHOLD        = 10.0;
+
+    static final double     BUFFER                  = 5.0;
+
+    //debug variables
+    int leftFrontPos;
+    int leftBackPos;
+    int rightFrontPos;
+    int rightBackPos;
+    int leftTarget;
+    int rightTarget;
+
     @Override
     public void runOpMode() {
 
@@ -106,6 +117,7 @@ public class GyroAutonomous2 extends LinearOpMode {
          * The init() method of the hardware class does most of the work here
          */
         robot.init(hardwareMap);
+        //gyro = robot.gyro;
         gyro = (ModernRoboticsI2cGyro)hardwareMap.gyroSensor.get("gyro");
 
         // Ensure the robot it stationary, then reset the encoders and calibrate the gyro.
@@ -118,21 +130,33 @@ public class GyroAutonomous2 extends LinearOpMode {
         telemetry.addData(">", "Calibrating Gyro");    //
         telemetry.update();
 
+        if (gyro != null)
+        {
+            telemetry.addData("gyro", "not null");
+        }
+        else {
+            telemetry.addData("gyro", "null");
+        }
+        telemetry.update();
         gyro.calibrate();
 
+        telemetry.addData("gyro", "finished calibration");
+        telemetry.update();
+        int i = 0;
         // make sure the gyro is calibrated before continuing
         while (!isStopRequested() && gyro.isCalibrating())  {
-            sleep(50);
+            telemetry.addData("stop requested", isStopRequested());
+            telemetry.addData("is calibrating", gyro.isCalibrating());
+            telemetry.addData("i", i);
+            telemetry.update();
+            sleep(100);
             idle();
+            i++;
         }
 
         telemetry.addData(">", "Robot Ready.");    //
         telemetry.update();
 
-        robot.leftFrontMotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-        robot.leftBackMotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-        robot.rightFrontMotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-        robot.rightBackMotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
 
         // Wait for the game to start (Display Gyro value), and reset gyro before we move..
         while (!isStarted()) {
@@ -146,12 +170,20 @@ public class GyroAutonomous2 extends LinearOpMode {
         // Note: Reverse movement is obtained by setting a negative distance (not speed)
         // Put a hold after each turn
 
+        sleep(1000);
+        robot.leftFrontMotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        robot.leftBackMotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        robot.rightFrontMotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        robot.rightBackMotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+
         //BEGIN MOVEMENT
-        gyroTurn(   TURN_SPEED,   45.0);
-        gyroDrive(  DRIVE_SPEED,  44.0, 0.0);
-        gyroTurn(   TURN_SPEED,   0.0 );
-        gyroDrive(  DRIVE_SPEED,  21.0, 0.0); //get to first beacon
-        pushBeacon(true);
+        gyroDrive(  DRIVE_SPEED,   44.0, 0.0);
+        //gyroTurn(   TURN_SPEED,     45.0);
+        //gyroDrive(  DRIVE_SPEED,  0.0, 0.0);
+        //gyroTurn(   TURN_SPEED,   0.0 );
+        //gyroDrive(  DRIVE_SPEED,  0.0, 0.0); //get to first beacon
+        //pushBeacon(true);
+
         //gyroDrive(DRIVE_SPEED, 48.0, 0.0);    // Drive FWD 48 inches
         //gyroTurn( TURN_SPEED, -45.0);         // Turn  CCW to -45 Degrees
         //gyroHold( TURN_SPEED, -45.0, 0.5);    // Hold -45 Deg heading for a 1/2 second
@@ -161,9 +193,17 @@ public class GyroAutonomous2 extends LinearOpMode {
         //gyroHold( TURN_SPEED,   0.0, 1.0);    // Hold  0 Deg heading for a 1 second
         //gyroDrive(DRIVE_SPEED,-48.0, 0.0);    // Drive REV 48 inches
         //gyroHold( TURN_SPEED,   0.0, 0.5);    // Hold  0 Deg heading for a 1/2 second
+        telemetry.addData("left target", leftTarget);
+        telemetry.addData("right target", rightTarget);
+        telemetry.addData("left front pos", leftFrontPos);
+        telemetry.addData("left back pos", leftBackPos);
+        telemetry.addData("right front pos", rightFrontPos);
+        telemetry.addData("right back pos", rightBackPos);
 
         telemetry.addData("Path", "Complete");
         telemetry.update();
+
+        sleep (5000);
     }
 
     public void pushBeacon(boolean isFirst)
@@ -248,9 +288,27 @@ public class GyroAutonomous2 extends LinearOpMode {
             robot.rightFrontMotor.setPower(speed);
             robot.rightBackMotor.setPower(speed);
 
+            telemetry.addData("position", newLeftTarget);
+            telemetry.update();
+            int i = 0;
             // keep looping while we are still active, and BOTH motors are running.
             while (opModeIsActive() &&
                    (robot.leftFrontMotor.isBusy() && robot.leftBackMotor.isBusy() && robot.rightFrontMotor.isBusy() && robot.rightBackMotor.isBusy())) {
+                telemetry.addData("position", newLeftTarget);
+                telemetry.addData("i", i);
+                telemetry.addData("left front motor", robot.leftFrontMotor.isBusy() + " " + robot.leftFrontMotor.getCurrentPosition());
+                telemetry.addData("left back motor", robot.leftBackMotor.isBusy() + " " + robot.leftBackMotor.getCurrentPosition());
+                telemetry.addData("right front motor", robot.rightFrontMotor.isBusy() + " " + robot.rightFrontMotor.getCurrentPosition());
+                telemetry.addData("right back motor", robot.rightBackMotor.isBusy() + " " + robot.rightBackMotor.getCurrentPosition());
+                telemetry.update();
+                i++;
+
+                leftTarget = newLeftTarget;
+                rightTarget = newRightTarget;
+                leftFrontPos = robot.leftFrontMotor.getCurrentPosition();
+                leftBackPos = robot.leftBackMotor.getCurrentPosition();
+                rightFrontPos = robot.rightFrontMotor.getCurrentPosition();
+                rightBackPos = robot.rightBackMotor.getCurrentPosition();
 
                 // adjust relative speed based on heading error.
                 error = getError(angle);

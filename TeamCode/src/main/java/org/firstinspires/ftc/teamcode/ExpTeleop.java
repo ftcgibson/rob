@@ -124,7 +124,7 @@ public class ExpTeleop extends OpMode{
                                             " left back: " + robot.leftBackMotor.getPower() +
                                             " right front: " + robot.rightFrontMotor.getPower() +
                                             " right back: " + robot.rightBackMotor.getPower());
-        double y = gamepad1.left_stick_y;
+        double y = -gamepad1.left_stick_y;
         double x = gamepad1.right_stick_x;
 
 
@@ -133,8 +133,7 @@ public class ExpTeleop extends OpMode{
 
         double shooterPower = gamepad1.right_trigger;
         double collectorPower = gamepad1.left_trigger;
-        long rotateTime = 500;
-        Thread.sleep(rotateTime);
+        //long rotateTime = 500;
         //double shooterPower = 0;
         //double collectorPower = 0;
 

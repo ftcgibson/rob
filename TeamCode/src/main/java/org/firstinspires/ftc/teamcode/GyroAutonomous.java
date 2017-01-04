@@ -77,8 +77,8 @@ import org.firstinspires.ftc.robotcontroller.external.samples.HardwarePushbot;
 public class GyroAutonomous extends LinearOpMode {
 
     /* Declare OpMode members. */
-    RobotHardware robot   = new RobotHardware(true);   // Use a Pushbot's hardware
-    ModernRoboticsI2cGyro   gyro    = null;                    // Additional Gyro device
+    ExpHardware robot   = new ExpHardware(true);   // Use a Pushbot's hardware
+    //ModernRoboticsI2cGyro   gyro    = null;                    // Additional Gyro device
 
     static final double     COUNTS_PER_MOTOR_REV    = 1440 ;    // eg: TETRIX Motor Encoder
     static final double     DRIVE_GEAR_REDUCTION    = 0.5 ;     // This is < 1.0 if geared UP
@@ -95,6 +95,7 @@ public class GyroAutonomous extends LinearOpMode {
     static final double     P_TURN_COEFF            = 0.1;     // Larger is more responsive, but also less stable
     static final double     P_DRIVE_COEFF           = 0.15;     // Larger is more responsive, but also less stable
 
+    ModernRoboticsI2cGyro gyro;   // Hardware Device Object
 
     @Override
     public void runOpMode() {
@@ -103,7 +104,9 @@ public class GyroAutonomous extends LinearOpMode {
          * Initialize the standard drive system variables.
          * The init() method of the hardware class does most of the work here
          */
+
         robot.init(hardwareMap);
+        //gyro = (ModernRoboticsI2cGyro)hardwareMap.gyroSensor.get("gyro");
         gyro = (ModernRoboticsI2cGyro)hardwareMap.gyroSensor.get("gyro");
 
         // Ensure the robot it stationary, then reset the encoders and calibrate the gyro.
