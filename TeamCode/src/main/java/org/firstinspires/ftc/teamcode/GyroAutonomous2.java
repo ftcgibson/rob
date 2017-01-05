@@ -93,7 +93,7 @@ public class GyroAutonomous2 extends LinearOpMode {
 
     static final double     HEADING_THRESHOLD       = 2 ;      // As tight as we can make it with an integer gyro
     static final double     P_TURN_COEFF            = 0.05;     // Larger is more responsive, but also less stable
-    static final double     P_DRIVE_COEFF           = 0.15;     // Larger is more responsive, but also less stable
+    static final double     P_DRIVE_COEFF           = 0.05;     // Larger is more responsive, but also less stable
 
     static final double     BEACON_RED              = 0.0;
     static final double     BEACON_BLUE             = 160.0;
@@ -174,8 +174,8 @@ public class GyroAutonomous2 extends LinearOpMode {
 
         sleep(1000);
         robot.leftFrontMotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-        robot.leftBackMotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-        robot.rightFrontMotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        robot.leftBackMotor.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+        robot.rightFrontMotor.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
         robot.rightBackMotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
 
         //BEGIN MOVEMENT
@@ -198,8 +198,8 @@ public class GyroAutonomous2 extends LinearOpMode {
         telemetry.addData("left target", leftTarget);
         telemetry.addData("right target", rightTarget);
         telemetry.addData("left front pos", leftFrontPos);
-        telemetry.addData("left back pos", leftBackPos);
-        telemetry.addData("right front pos", rightFrontPos);
+        //telemetry.addData("left back pos", leftBackPos);
+        //telemetry.addData("right front pos", rightFrontPos);
         telemetry.addData("right back pos", rightBackPos);
 
         telemetry.addData("Path", "Complete");
@@ -258,8 +258,8 @@ public class GyroAutonomous2 extends LinearOpMode {
         double  max;
         double  error;
         double  steer;
-        double  leftSpeed;
-        double  rightSpeed;
+        double  leftSpeed = speed;
+        double  rightSpeed = speed;
 
         // Ensure that the opmode is still active
         if (opModeIsActive()) {
@@ -267,25 +267,25 @@ public class GyroAutonomous2 extends LinearOpMode {
             // Determine new target position, and pass to motor controller
             moveCounts = (int)(distance * COUNTS_PER_INCH);
             startingPositions[0] = robot.leftFrontMotor.getCurrentPosition();
-            startingPositions[1] = robot.leftBackMotor.getCurrentPosition();
-            startingPositions[2] = robot.rightFrontMotor.getCurrentPosition();
+            //startingPositions[1] = robot.leftBackMotor.getCurrentPosition();
+            //startingPositions[2] = robot.rightFrontMotor.getCurrentPosition();
             startingPositions[3] = robot.rightBackMotor.getCurrentPosition();
 
             newLeftTarget = robot.leftFrontMotor.getCurrentPosition() + moveCounts;
-            newLeftTarget = robot.leftBackMotor.getCurrentPosition() + moveCounts;
-            newRightTarget = robot.rightFrontMotor.getCurrentPosition() + moveCounts;
+            //newLeftTarget = robot.leftBackMotor.getCurrentPosition() + moveCounts;
+            //newRightTarget = robot.rightFrontMotor.getCurrentPosition() + moveCounts;
             newRightTarget = robot.rightBackMotor.getCurrentPosition() + moveCounts;
 
             // Set Target and Turn On RUN_TO_POSITION
             robot.leftFrontMotor.setTargetPosition(newLeftTarget);
-            robot.leftBackMotor.setTargetPosition(newLeftTarget);
-            robot.rightFrontMotor.setTargetPosition(newRightTarget);
+            //robot.leftBackMotor.setTargetPosition(newLeftTarget);
+            //robot.rightFrontMotor.setTargetPosition(newRightTarget);
             robot.rightBackMotor.setTargetPosition(newRightTarget);
 
 
             robot.leftFrontMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-            robot.leftBackMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-            robot.rightFrontMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+            //robot.leftBackMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+            //robot.rightFrontMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
             robot.rightBackMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
 
             // start motion.
@@ -300,43 +300,42 @@ public class GyroAutonomous2 extends LinearOpMode {
             int i = 0;
             // keep looping while we are still active, and BOTH motors are running.
             while (opModeIsActive() && (
-                   (robot.leftFrontMotor.isBusy() && robot.leftBackMotor.isBusy()) && (robot.rightFrontMotor.isBusy() && robot.rightBackMotor.isBusy()))) {
+                    (robot.leftFrontMotor.isBusy() && robot.rightBackMotor.isBusy()))) {
                 telemetry.addData("position", newLeftTarget);
                 telemetry.addData("i", i);
                 telemetry.addData("left front motor", robot.leftFrontMotor.isBusy() + " " + robot.leftFrontMotor.getCurrentPosition() + " " + robot.leftFrontMotor.getPower());
-                telemetry.addData("left back motor", robot.leftBackMotor.isBusy() + " " + robot.leftBackMotor.getCurrentPosition() + " " + robot.leftBackMotor.getPower());
-                telemetry.addData("right front motor", robot.rightFrontMotor.isBusy() + " " + robot.rightFrontMotor.getCurrentPosition() + " " + robot.rightFrontMotor.getPower());
                 telemetry.addData("right back motor", robot.rightBackMotor.isBusy() + " " + robot.rightBackMotor.getCurrentPosition() + " " + robot.rightBackMotor.getPower());
                 telemetry.update();
                 i++;
-
+/*
                 if (Math.abs(robot.leftFrontMotor.getCurrentPosition() - robot.rightBackMotor.getCurrentPosition()) < 100)
                 {
 
                 }
+
                 else if (robot.leftFrontMotor.getCurrentPosition() > robot.rightBackMotor.getCurrentPosition())
                 {
-                    robot.leftFrontMotor.setPower(speed + 0.1);
-                    robot.leftBackMotor.setPower(speed + 0.1);
-                    robot.rightFrontMotor.setPower(speed - 0.1);
-                    robot.rightBackMotor.setPower(speed - 0.1);
+                    robot.leftFrontMotor.setPower(leftSpeed + 0.1);
+                    robot.leftBackMotor.setPower(leftSpeed + 0.1);
+                    robot.rightFrontMotor.setPower(rightSpeed - 0.1);
+                    robot.rightBackMotor.setPower(rightSpeed - 0.1);
                 }
                 else if (robot.rightBackMotor.getCurrentPosition() > robot.leftFrontMotor.getCurrentPosition())
                 {
-                    robot.leftFrontMotor.setPower(speed - 0.1);
-                    robot.leftBackMotor.setPower(speed - 0.1);
-                    robot.rightFrontMotor.setPower(speed + 0.1);
-                    robot.rightBackMotor.setPower(speed + 0.1);
+                    robot.leftFrontMotor.setPower(leftSpeed - 0.1);
+                    robot.leftBackMotor.setPower(leftSpeed - 0.1);
+                    robot.rightFrontMotor.setPower(rightSpeed + 0.1);
+                    robot.rightBackMotor.setPower(rightSpeed + 0.1);
                 }
-
+*/
                 leftTarget = newLeftTarget;
                 rightTarget = newRightTarget;
                 leftFrontPos = robot.leftFrontMotor.getCurrentPosition();
-                leftBackPos = robot.leftBackMotor.getCurrentPosition();
-                rightFrontPos = robot.rightFrontMotor.getCurrentPosition();
+                //leftBackPos = robot.leftBackMotor.getCurrentPosition();
+                //rightFrontPos = robot.rightFrontMotor.getCurrentPosition();
                 rightBackPos = robot.rightBackMotor.getCurrentPosition();
 
-                 //please uncomment this afterwards
+                //please uncomment this afterwards
                 // adjust relative speed based on heading error.
                 error = getError(angle);
                 steer = getSteer(error, P_DRIVE_COEFF);
@@ -359,6 +358,7 @@ public class GyroAutonomous2 extends LinearOpMode {
                 //DELETE THIS AFTERWARDS AND UNCOMMENT TOP
                 /*rightSpeed = speed;
                 leftSpeed = speed;*/
+
                 robot.leftFrontMotor.setPower(leftSpeed);
                 robot.leftBackMotor.setPower(leftSpeed);
                 robot.rightFrontMotor.setPower(rightSpeed);
@@ -368,7 +368,7 @@ public class GyroAutonomous2 extends LinearOpMode {
                 //telemetry.addData("Err/St",  "%5.1f/%5.1f",  error, steer);
                 telemetry.addData("Target",  "%7d:%7d",      newLeftTarget,  newRightTarget);
                 telemetry.addData("Actual",  "%7d:%7d",      robot.leftFrontMotor.getCurrentPosition(),
-                                                             robot.rightFrontMotor.getCurrentPosition());
+                        robot.rightBackMotor.getCurrentPosition());
                 telemetry.addData("Speed",   "%5.2f:%5.2f",  leftSpeed, rightSpeed);
                 telemetry.update();
             }
@@ -381,8 +381,8 @@ public class GyroAutonomous2 extends LinearOpMode {
 
             // Turn off RUN_TO_POSITION
             robot.leftFrontMotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-            robot.leftBackMotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-            robot.rightFrontMotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+            robot.leftBackMotor.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+            robot.rightFrontMotor.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
             robot.rightBackMotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
         }
     }
