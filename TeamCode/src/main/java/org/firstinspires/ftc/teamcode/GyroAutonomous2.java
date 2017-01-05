@@ -30,14 +30,14 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 package org.firstinspires.ftc.teamcode;
 
+import android.graphics.Color;
+
 import com.qualcomm.hardware.modernrobotics.ModernRoboticsI2cGyro;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.util.ElapsedTime;
 import com.qualcomm.robotcore.util.Range;
-
-import org.firstinspires.ftc.robotcontroller.external.samples.HardwarePushbot;
 
 /**
  * This file illustrates the concept of driving a path based on Gyro heading and encoder counts.
@@ -72,13 +72,13 @@ import org.firstinspires.ftc.robotcontroller.external.samples.HardwarePushbot;
  * Remove or comment out the @Disabled line to add this opmode to the Driver Station OpMode list
  */
 
-@Autonomous(name="Drive and Park", group="Pushbot")
+@Autonomous(name="Push Beacons Blue Team", group="Pushbot")
 //@Disabled
-public class GyroAutonomous extends LinearOpMode {
+public class GyroAutonomous2 extends LinearOpMode {
 
     /* Declare OpMode members. */
-    ExpHardware robot   = new ExpHardware(true);   // Use a Pushbot's hardware
-    //ModernRoboticsI2cGyro   gyro    = null;                    // Additional Gyro device
+    RobotHardware robot   = new RobotHardware(true);   // Use a Pushbot's hardware
+    ModernRoboticsI2cGyro   gyro    = null;                    // Additional Gyro device
 
     static final double     COUNTS_PER_MOTOR_REV    = 1440 ;    // eg: TETRIX Motor Encoder
     static final double     DRIVE_GEAR_REDUCTION    = 0.5 ;     // This is < 1.0 if geared UP
@@ -88,14 +88,28 @@ public class GyroAutonomous extends LinearOpMode {
 
     // These constants define the desired driving/control characteristics
     // The can/should be tweaked to suite the specific robot drive train.
-    static final double     DRIVE_SPEED             = 0.7;     // Nominal speed for better accuracy.
+    static final double     DRIVE_SPEED             = 0.5;     // Nominal speed for better accuracy.
     static final double     TURN_SPEED              = 0.5;     // Nominal half speed for better accuracy.
 
-    static final double     HEADING_THRESHOLD       = 1 ;      // As tight as we can make it with an integer gyro
-    static final double     P_TURN_COEFF            = 0.1;     // Larger is more responsive, but also less stable
+    static final double     HEADING_THRESHOLD       = 2 ;      // As tight as we can make it with an integer gyro
+    static final double     P_TURN_COEFF            = 0.05;     // Larger is more responsive, but also less stable
     static final double     P_DRIVE_COEFF           = 0.15;     // Larger is more responsive, but also less stable
 
-    ModernRoboticsI2cGyro gyro;   // Hardware Device Object
+    static final double     BEACON_RED              = 0.0;
+    static final double     BEACON_BLUE             = 160.0;
+    static final double     BEACON_THRESHOLD        = 10.0;
+
+    static final double     BUFFER                  = 5.0;
+
+    static final double     MOTOR_DFF               = 0.6; //left in terms of right
+    //debug variables
+    int leftFrontPos;
+    int leftBackPos;
+    int rightFrontPos;
+    int rightBackPos;
+    int leftTarget;
+    int rightTarget;
+    int[] startingPositions = new int[4];
 
     @Override
     public void runOpMode() {
@@ -104,9 +118,8 @@ public class GyroAutonomous extends LinearOpMode {
          * Initialize the standard drive system variables.
          * The init() method of the hardware class does most of the work here
          */
-
         robot.init(hardwareMap);
-        //gyro = (ModernRoboticsI2cGyro)hardwareMap.gyroSensor.get("gyro");
+        //gyro = robot.gyro;
         gyro = (ModernRoboticsI2cGyro)hardwareMap.gyroSensor.get("gyro");
 
         // Ensure the robot it stationary, then reset the encoders and calibrate the gyro.
@@ -119,21 +132,33 @@ public class GyroAutonomous extends LinearOpMode {
         telemetry.addData(">", "Calibrating Gyro");    //
         telemetry.update();
 
+        if (gyro != null)
+        {
+            telemetry.addData("gyro", "not null");
+        }
+        else {
+            telemetry.addData("gyro", "null");
+        }
+        telemetry.update();
         gyro.calibrate();
 
+        telemetry.addData("gyro", "finished calibration");
+        telemetry.update();
+        int i = 0;
         // make sure the gyro is calibrated before continuing
         while (!isStopRequested() && gyro.isCalibrating())  {
-            sleep(50);
+            telemetry.addData("stop requested", isStopRequested());
+            telemetry.addData("is calibrating", gyro.isCalibrating());
+            telemetry.addData("i", i);
+            telemetry.update();
+            sleep(100);
             idle();
+            i++;
         }
 
         telemetry.addData(">", "Robot Ready.");    //
         telemetry.update();
 
-        robot.leftFrontMotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-        robot.leftBackMotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-        robot.rightFrontMotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-        robot.rightBackMotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
 
         // Wait for the game to start (Display Gyro value), and reset gyro before we move..
         while (!isStarted()) {
@@ -146,7 +171,22 @@ public class GyroAutonomous extends LinearOpMode {
         // Step through each leg of the path,
         // Note: Reverse movement is obtained by setting a negative distance (not speed)
         // Put a hold after each turn
-        gyroDrive(DRIVE_SPEED, 48.0, 0.0);    // Drive FWD 48 inches
+
+        sleep(1000);
+        robot.leftFrontMotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        robot.leftBackMotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        robot.rightFrontMotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        robot.rightBackMotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+
+        //BEGIN MOVEMENT
+        gyroDrive(  DRIVE_SPEED,   44.0, 0.0);
+        //gyroTurn(   TURN_SPEED,     45.0);
+        //gyroDrive(  DRIVE_SPEED,  0.0, 0.0);
+        //gyroTurn(   TURN_SPEED,   0.0 );
+        //gyroDrive(  DRIVE_SPEED,  0.0, 0.0); //get to first beacon
+        //pushBeacon(true);
+
+        //gyroDrive(DRIVE_SPEED, 48.0, 0.0);    // Drive FWD 48 inches
         //gyroTurn( TURN_SPEED, -45.0);         // Turn  CCW to -45 Degrees
         //gyroHold( TURN_SPEED, -45.0, 0.5);    // Hold -45 Deg heading for a 1/2 second
         //gyroTurn( TURN_SPEED,  45.0);         // Turn  CW  to  45 Degrees
@@ -155,11 +195,46 @@ public class GyroAutonomous extends LinearOpMode {
         //gyroHold( TURN_SPEED,   0.0, 1.0);    // Hold  0 Deg heading for a 1 second
         //gyroDrive(DRIVE_SPEED,-48.0, 0.0);    // Drive REV 48 inches
         //gyroHold( TURN_SPEED,   0.0, 0.5);    // Hold  0 Deg heading for a 1/2 second
+        telemetry.addData("left target", leftTarget);
+        telemetry.addData("right target", rightTarget);
+        telemetry.addData("left front pos", leftFrontPos);
+        telemetry.addData("left back pos", leftBackPos);
+        telemetry.addData("right front pos", rightFrontPos);
+        telemetry.addData("right back pos", rightBackPos);
 
         telemetry.addData("Path", "Complete");
         telemetry.update();
+
+        sleep (5000);
     }
 
+    public void pushBeacon(boolean isFirst)
+    {
+        float[] hsv = {0F, 0F, 0F};
+        Color.RGBToHSV(robot.sensor.red() * 8, robot.sensor.green() * 8, robot.sensor.blue() * 8, hsv);
+        telemetry.addData("h", hsv[0]);
+        telemetry.addData("s", hsv[1]);
+        telemetry.addData("v", hsv[2]);
+        telemetry.update();
+
+        if (Math.abs(hsv[0] - BEACON_BLUE) < BEACON_THRESHOLD) {
+            robot.pusher.setPosition(1.0);
+            while (robot.pusher.getPosition() < 1.0)
+            {
+
+            }
+            robot.pusher.setPosition(0.0);
+            if (isFirst) {
+                gyroDrive(DRIVE_SPEED, 5.5, 0.0);
+            }
+        }
+        else {
+            if (isFirst) {
+                gyroDrive(DRIVE_SPEED, 5.5, 0.0);
+                pushBeacon(false);
+            }
+        }
+    }
 
    /**
     *  Method to drive on a fixed compass bearing (angle), based on encoder counts.
@@ -191,6 +266,11 @@ public class GyroAutonomous extends LinearOpMode {
 
             // Determine new target position, and pass to motor controller
             moveCounts = (int)(distance * COUNTS_PER_INCH);
+            startingPositions[0] = robot.leftFrontMotor.getCurrentPosition();
+            startingPositions[1] = robot.leftBackMotor.getCurrentPosition();
+            startingPositions[2] = robot.rightFrontMotor.getCurrentPosition();
+            startingPositions[3] = robot.rightBackMotor.getCurrentPosition();
+
             newLeftTarget = robot.leftFrontMotor.getCurrentPosition() + moveCounts;
             newLeftTarget = robot.leftBackMotor.getCurrentPosition() + moveCounts;
             newRightTarget = robot.rightFrontMotor.getCurrentPosition() + moveCounts;
@@ -215,10 +295,48 @@ public class GyroAutonomous extends LinearOpMode {
             robot.rightFrontMotor.setPower(speed);
             robot.rightBackMotor.setPower(speed);
 
+            telemetry.addData("position", newLeftTarget);
+            telemetry.update();
+            int i = 0;
             // keep looping while we are still active, and BOTH motors are running.
-            while (opModeIsActive() &&
-                   (robot.leftFrontMotor.isBusy() && robot.leftBackMotor.isBusy() && robot.rightFrontMotor.isBusy() && robot.rightBackMotor.isBusy())) {
+            while (opModeIsActive() && (
+                   (robot.leftFrontMotor.isBusy() && robot.leftBackMotor.isBusy()) && (robot.rightFrontMotor.isBusy() && robot.rightBackMotor.isBusy()))) {
+                telemetry.addData("position", newLeftTarget);
+                telemetry.addData("i", i);
+                telemetry.addData("left front motor", robot.leftFrontMotor.isBusy() + " " + robot.leftFrontMotor.getCurrentPosition() + " " + robot.leftFrontMotor.getPower());
+                telemetry.addData("left back motor", robot.leftBackMotor.isBusy() + " " + robot.leftBackMotor.getCurrentPosition() + " " + robot.leftBackMotor.getPower());
+                telemetry.addData("right front motor", robot.rightFrontMotor.isBusy() + " " + robot.rightFrontMotor.getCurrentPosition() + " " + robot.rightFrontMotor.getPower());
+                telemetry.addData("right back motor", robot.rightBackMotor.isBusy() + " " + robot.rightBackMotor.getCurrentPosition() + " " + robot.rightBackMotor.getPower());
+                telemetry.update();
+                i++;
 
+                if (Math.abs(robot.leftFrontMotor.getCurrentPosition() - robot.rightBackMotor.getCurrentPosition()) < 100)
+                {
+
+                }
+                else if (robot.leftFrontMotor.getCurrentPosition() > robot.rightBackMotor.getCurrentPosition())
+                {
+                    robot.leftFrontMotor.setPower(speed + 0.1);
+                    robot.leftBackMotor.setPower(speed + 0.1);
+                    robot.rightFrontMotor.setPower(speed - 0.1);
+                    robot.rightBackMotor.setPower(speed - 0.1);
+                }
+                else if (robot.rightBackMotor.getCurrentPosition() > robot.leftFrontMotor.getCurrentPosition())
+                {
+                    robot.leftFrontMotor.setPower(speed - 0.1);
+                    robot.leftBackMotor.setPower(speed - 0.1);
+                    robot.rightFrontMotor.setPower(speed + 0.1);
+                    robot.rightBackMotor.setPower(speed + 0.1);
+                }
+
+                leftTarget = newLeftTarget;
+                rightTarget = newRightTarget;
+                leftFrontPos = robot.leftFrontMotor.getCurrentPosition();
+                leftBackPos = robot.leftBackMotor.getCurrentPosition();
+                rightFrontPos = robot.rightFrontMotor.getCurrentPosition();
+                rightBackPos = robot.rightBackMotor.getCurrentPosition();
+
+                 //please uncomment this afterwards
                 // adjust relative speed based on heading error.
                 error = getError(angle);
                 steer = getSteer(error, P_DRIVE_COEFF);
@@ -238,13 +356,16 @@ public class GyroAutonomous extends LinearOpMode {
                     rightSpeed /= max;
                 }
 
+                //DELETE THIS AFTERWARDS AND UNCOMMENT TOP
+                /*rightSpeed = speed;
+                leftSpeed = speed;*/
                 robot.leftFrontMotor.setPower(leftSpeed);
                 robot.leftBackMotor.setPower(leftSpeed);
                 robot.rightFrontMotor.setPower(rightSpeed);
                 robot.rightBackMotor.setPower(rightSpeed);
 
                 // Display drive status for the driver.
-                telemetry.addData("Err/St",  "%5.1f/%5.1f",  error, steer);
+                //telemetry.addData("Err/St",  "%5.1f/%5.1f",  error, steer);
                 telemetry.addData("Target",  "%7d:%7d",      newLeftTarget,  newRightTarget);
                 telemetry.addData("Actual",  "%7d:%7d",      robot.leftFrontMotor.getCurrentPosition(),
                                                              robot.rightFrontMotor.getCurrentPosition());

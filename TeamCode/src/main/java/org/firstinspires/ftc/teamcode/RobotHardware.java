@@ -3,9 +3,13 @@ package org.firstinspires.ftc.teamcode;
 import com.qualcomm.robotcore.hardware.ColorSensor;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
+import com.qualcomm.robotcore.hardware.GyroSensor;
 import com.qualcomm.robotcore.hardware.HardwareMap;
+import com.qualcomm.robotcore.hardware.I2cAddr;
 import com.qualcomm.robotcore.hardware.Servo;
 import com.qualcomm.robotcore.util.ElapsedTime;
+import com.qualcomm.hardware.modernrobotics.ModernRoboticsI2cGyro;
+
 
 /**
  * This is NOT an opmode.
@@ -31,9 +35,10 @@ public class RobotHardware {
     public DcMotor rightBackMotor = null;
     public Servo   pusher = null;
     public ColorSensor  sensor = null;
-    public ColorSensor  bottomSensor = null;
+    public ColorSensor bottomSensor = null;
     public DcMotor collector = null;
     public DcMotor shooter = null;
+    public ModernRoboticsI2cGyro gyro = null;
     //public Servo    leftClaw        = null;
     //public Servo    rightClaw       = null;
     //public Servo    backClaw        = null;
@@ -75,6 +80,11 @@ public class RobotHardware {
         bottomSensor     = hwMap.colorSensor.get("bottom sensor");
         collector        = hwMap.dcMotor.get("collector");
         shooter          = hwMap.dcMotor.get("shooter");
+        gyro             = (ModernRoboticsI2cGyro) hwMap.gyroSensor.get("gyro");
+
+        bottomSensor.setI2cAddress(I2cAddr.create8bit(0x10));
+        sensor.setI2cAddress(I2cAddr.create8bit(0x16));
+        gyro.setI2cAddress(I2cAddr.create8bit(0x30));
 
         if (direction) {
             leftFrontMotor.setDirection(DcMotor.Direction.REVERSE);
@@ -93,6 +103,7 @@ public class RobotHardware {
 
         collector.setDirection (DcMotor.Direction.FORWARD);
         shooter.setDirection (DcMotor.Direction.FORWARD);
+        shooter.setDirection (DcMotor.Direction.REVERSE);
 
         // Set all motors to zero power
         leftFrontMotor.setPower(0);
