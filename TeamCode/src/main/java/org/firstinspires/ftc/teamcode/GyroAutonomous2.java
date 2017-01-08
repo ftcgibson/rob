@@ -301,15 +301,15 @@ public class GyroAutonomous2 extends LinearOpMode {
             // keep looping while we are still active, and BOTH motors are running.
             while (opModeIsActive() && (
                    (robot.leftFrontMotor.isBusy() && robot.leftBackMotor.isBusy()) && (robot.rightFrontMotor.isBusy() && robot.rightBackMotor.isBusy()))) {
-                telemetry.addData("position", newLeftTarget);
+                /*telemetry.addData("position", newLeftTarget);
                 telemetry.addData("i", i);
                 telemetry.addData("left front motor", robot.leftFrontMotor.isBusy() + " " + robot.leftFrontMotor.getCurrentPosition() + " " + robot.leftFrontMotor.getPower());
                 telemetry.addData("left back motor", robot.leftBackMotor.isBusy() + " " + robot.leftBackMotor.getCurrentPosition() + " " + robot.leftBackMotor.getPower());
                 telemetry.addData("right front motor", robot.rightFrontMotor.isBusy() + " " + robot.rightFrontMotor.getCurrentPosition() + " " + robot.rightFrontMotor.getPower());
                 telemetry.addData("right back motor", robot.rightBackMotor.isBusy() + " " + robot.rightBackMotor.getCurrentPosition() + " " + robot.rightBackMotor.getPower());
-                telemetry.update();
+                telemetry.update();*/
                 i++;
-
+                /*
                 if (Math.abs(robot.leftFrontMotor.getCurrentPosition() - robot.rightBackMotor.getCurrentPosition()) < 100)
                 {
 
@@ -327,7 +327,7 @@ public class GyroAutonomous2 extends LinearOpMode {
                     robot.leftBackMotor.setPower(speed - 0.1);
                     robot.rightFrontMotor.setPower(speed + 0.1);
                     robot.rightBackMotor.setPower(speed + 0.1);
-                }
+                }*/
 
                 leftTarget = newLeftTarget;
                 rightTarget = newRightTarget;
@@ -368,7 +368,7 @@ public class GyroAutonomous2 extends LinearOpMode {
                 //telemetry.addData("Err/St",  "%5.1f/%5.1f",  error, steer);
                 telemetry.addData("Target",  "%7d:%7d",      newLeftTarget,  newRightTarget);
                 telemetry.addData("Actual",  "%7d:%7d",      robot.leftFrontMotor.getCurrentPosition(),
-                                                             robot.rightFrontMotor.getCurrentPosition());
+                                                             robot.rightBackMotor.getCurrentPosition());
                 telemetry.addData("Speed",   "%5.2f:%5.2f",  leftSpeed, rightSpeed);
                 telemetry.update();
             }

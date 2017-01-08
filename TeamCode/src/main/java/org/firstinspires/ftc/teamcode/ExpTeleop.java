@@ -47,8 +47,10 @@ public class ExpTeleop extends OpMode{
 
     private final double THRESHOLD = 0.05;
     private final double SLOWDOWN_FACTOR = 3.0;
-    private final double SHOOT_TIME = 2.0;
+    private final double SHOOT_TIME = 0.57143 * 1E9;
 
+    private double directionX = 1.0;
+    private double directionY = 1.0;
     @Override
     public void init() {
         /* Initialize the hardware variables.
@@ -61,7 +63,7 @@ public class ExpTeleop extends OpMode{
         telemetry.addData("Say", "Nalu Zou");
         // Send telemetry message to signify robot running;
         // *******************************************
-        telemetry.addData("Welcome to the experimental robot", "");
+        telemetry.addData("Welcome to the FTC11487 robot", "");
         // *******************************************
         updateTelemetry(telemetry);
     }
@@ -124,14 +126,22 @@ public class ExpTeleop extends OpMode{
                                             " left back: " + robot.leftBackMotor.getPower() +
                                             " right front: " + robot.rightFrontMotor.getPower() +
                                             " right back: " + robot.rightBackMotor.getPower());
-        double y = -gamepad1.left_stick_y;
-        double x = gamepad1.right_stick_x;
+        double y = gamepad1.left_stick_y * directionY;
+        double x = gamepad1.right_stick_x * directionX;
 
+        if (gamepad1.x)
+        {
+            directionX *= -1.0;
+        }
+        if (gamepad1.y)
+        {
+            directionY *= -1.0;
+        }
 
         x = (Math.abs(x) < THRESHOLD) ? 0 : x;
         y = (Math.abs(y) < THRESHOLD) ? 0 : y;
 
-        double shooterPower = gamepad1.right_trigger;
+        //double shooterPower = gamepad1.right_trigger;
         double collectorPower = gamepad1.left_trigger;
         long rotateTime = 500;
         //Thread.sleep(rotateTime);
@@ -139,16 +149,20 @@ public class ExpTeleop extends OpMode{
         //double shooterPower = 0;
         //double collectorPower = 0;
 
-        robot.shooter.setPower(shooterPower);
-        if (gamepad1.left_bumper)
+        //robot.shooter.setPower(SHOOT_TIME);
+        if (gamepad1.right_trigger > 0)
         {
+            shoot();
+        }
+        if (gamepad1.left_trigger > 0.3) {
             robot.collector.setPower(-1.0);
         }
-        else
+        if (gamepad1.right_bumper)
         {
-            robot.collector.setPower(collectorPower);
+            robot.lifter.setPower(1.0);
+        } else if (gamepad1.left_bumper) {
+            robot.lifter.setPower(-1.0);
         }
-
         if (gamepad1.b) {
             x /= SLOWDOWN_FACTOR;
             y /= SLOWDOWN_FACTOR;
@@ -182,7 +196,12 @@ public class ExpTeleop extends OpMode{
 
     private void shoot() {
         long startTime = System.nanoTime();
+        int i = 0;
         while(System.nanoTime()- startTime < SHOOT_TIME) {
+            telemetry.addData("time distance", System.nanoTime() + " - " + startTime + "=" + (System.nanoTime()- startTime));
+            telemetry.addData("i", i);
+            telemetry.update();
+            i++;
             robot.shooter.setPower(1.0);
         }
         robot.shooter.setPower(0);
