@@ -131,7 +131,11 @@ public class ExpTeleop extends OpMode{
         x = (Math.abs(x) < THRESHOLD) ? 0 : x;
         y = (Math.abs(y) < THRESHOLD) ? 0 : y;
 
-        double shooterPower = gamepad1.right_trigger;
+        //double shooterPower = gamepad1.right_trigger;
+        if (gamepad1.right_trigger > 0.3)
+        {
+            robot.shoot();
+        }
         double collectorPower = gamepad1.left_trigger;
         long rotateTime = 500;
         //Thread.sleep(rotateTime);
@@ -139,7 +143,7 @@ public class ExpTeleop extends OpMode{
         //double shooterPower = 0;
         //double collectorPower = 0;
 
-        robot.shooter.setPower(shooterPower);
+        //robot.shooter.setPower(shooterPower);
         if (gamepad1.left_bumper)
         {
             robot.collector.setPower(-1.0);
@@ -180,13 +184,13 @@ public class ExpTeleop extends OpMode{
     }
 
 
-    private void shoot() {
+    /*private void shoot() {
         long startTime = System.nanoTime();
         while(System.nanoTime()- startTime < SHOOT_TIME) {
             robot.shooter.setPower(1.0);
         }
         robot.shooter.setPower(0);
-    }
+    }*/
 
     /*
      * Code to run ONCE after the driver hits STOP

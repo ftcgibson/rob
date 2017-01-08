@@ -80,7 +80,7 @@ public class GyroAutonomous2 extends LinearOpMode {
     RobotHardware robot   = new RobotHardware(true);   // Use a Pushbot's hardware
     ModernRoboticsI2cGyro   gyro    = null;                    // Additional Gyro device
 
-    static final double     COUNTS_PER_MOTOR_REV    = 1440 ;    // eg: TETRIX Motor Encoder
+    static final double     COUNTS_PER_MOTOR_REV    = 1120 ;    // eg: TETRIX Motor Encoder
     static final double     DRIVE_GEAR_REDUCTION    = 0.5 ;     // This is < 1.0 if geared UP
     static final double     WHEEL_DIAMETER_INCHES   = 4.0 ;     // For figuring circumference
     static final double     COUNTS_PER_INCH         = (COUNTS_PER_MOTOR_REV * DRIVE_GEAR_REDUCTION) /
@@ -88,7 +88,7 @@ public class GyroAutonomous2 extends LinearOpMode {
 
     // These constants define the desired driving/control characteristics
     // The can/should be tweaked to suite the specific robot drive train.
-    static final double     DRIVE_SPEED             = 0.5;     // Nominal speed for better accuracy.
+    static final double     DRIVE_SPEED             = 1;     // Nominal speed for better accuracy.
     static final double     TURN_SPEED              = 0.5;     // Nominal half speed for better accuracy.
 
     static final double     HEADING_THRESHOLD       = 2 ;      // As tight as we can make it with an integer gyro
@@ -96,8 +96,8 @@ public class GyroAutonomous2 extends LinearOpMode {
     static final double     P_DRIVE_COEFF           = 0.05;     // Larger is more responsive, but also less stable
 
     static final double     BEACON_RED              = 0.0;
-    static final double     BEACON_BLUE             = 160.0;
-    static final double     BEACON_THRESHOLD        = 10.0;
+    static final double     BEACON_BLUE             = 240.0;
+    static final double     BEACON_THRESHOLD        = 30.0;
 
     static final double     BUFFER                  = 5.0;
 
@@ -178,13 +178,19 @@ public class GyroAutonomous2 extends LinearOpMode {
         robot.rightFrontMotor.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
         robot.rightBackMotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
 
+        // Shoot Particals
+        robot.shoot();
+
+        //test
+        pushBeacon(true);
         //BEGIN MOVEMENT
-        gyroDrive(  DRIVE_SPEED,   44.0, 0.0);
-        //gyroTurn(   TURN_SPEED,     45.0);
+        gyroDrive(  DRIVE_SPEED,   50.0, 0.0);
+        gyroTurn(   TURN_SPEED,     45.0);
+        gyroDrive(  DRIVE_SPEED,    30.0, 45.0);
         //gyroDrive(  DRIVE_SPEED,  0.0, 0.0);
         //gyroTurn(   TURN_SPEED,   0.0 );
         //gyroDrive(  DRIVE_SPEED,  0.0, 0.0); //get to first beacon
-        //pushBeacon(true);
+        pushBeacon(true);
 
         //gyroDrive(DRIVE_SPEED, 48.0, 0.0);    // Drive FWD 48 inches
         //gyroTurn( TURN_SPEED, -45.0);         // Turn  CCW to -45 Degrees
@@ -212,11 +218,15 @@ public class GyroAutonomous2 extends LinearOpMode {
     {
         float[] hsv = {0F, 0F, 0F};
         Color.RGBToHSV(robot.sensor.red() * 8, robot.sensor.green() * 8, robot.sensor.blue() * 8, hsv);
+        telemetry.addData("r", robot.sensor.red());
+        telemetry.addData("g", robot.sensor.green());
+        telemetry.addData("b", robot.sensor.blue());
         telemetry.addData("h", hsv[0]);
         telemetry.addData("s", hsv[1]);
         telemetry.addData("v", hsv[2]);
         telemetry.update();
 
+        sleep (7000);
         if (Math.abs(hsv[0] - BEACON_BLUE) < BEACON_THRESHOLD) {
             robot.pusher.setPosition(1.0);
             while (robot.pusher.getPosition() < 1.0)
@@ -307,27 +317,7 @@ public class GyroAutonomous2 extends LinearOpMode {
                 telemetry.addData("right back motor", robot.rightBackMotor.isBusy() + " " + robot.rightBackMotor.getCurrentPosition() + " " + robot.rightBackMotor.getPower());
                 telemetry.update();
                 i++;
-/*
-                if (Math.abs(robot.leftFrontMotor.getCurrentPosition() - robot.rightBackMotor.getCurrentPosition()) < 100)
-                {
 
-                }
-
-                else if (robot.leftFrontMotor.getCurrentPosition() > robot.rightBackMotor.getCurrentPosition())
-                {
-                    robot.leftFrontMotor.setPower(leftSpeed + 0.1);
-                    robot.leftBackMotor.setPower(leftSpeed + 0.1);
-                    robot.rightFrontMotor.setPower(rightSpeed - 0.1);
-                    robot.rightBackMotor.setPower(rightSpeed - 0.1);
-                }
-                else if (robot.rightBackMotor.getCurrentPosition() > robot.leftFrontMotor.getCurrentPosition())
-                {
-                    robot.leftFrontMotor.setPower(leftSpeed - 0.1);
-                    robot.leftBackMotor.setPower(leftSpeed - 0.1);
-                    robot.rightFrontMotor.setPower(rightSpeed + 0.1);
-                    robot.rightBackMotor.setPower(rightSpeed + 0.1);
-                }
-*/
                 leftTarget = newLeftTarget;
                 rightTarget = newRightTarget;
                 leftFrontPos = robot.leftFrontMotor.getCurrentPosition();

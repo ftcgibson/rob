@@ -52,7 +52,7 @@ public class RobotHardware {
     public static final double BACKWARD_TURN_POWER = -0.2;
     public static final double STOP_POWER = 0.0;
 
-    //private boolean AUT_MODE = false;
+    private boolean mode = false; //false = teleop true = autonomous
 
     /* local OpMode members. */
     HardwareMap hwMap = null;
@@ -60,9 +60,8 @@ public class RobotHardware {
 
     private boolean direction; //false = backwards
     /* Constructor */
-    public RobotHardware(boolean newDirection) {
-        //AUT_MODE = false;
-        direction = newDirection;
+    public RobotHardware(boolean newMode){
+        mode = newMode;
     }
 
     /* Initialize standard Hardware interfaces */
@@ -86,23 +85,13 @@ public class RobotHardware {
         sensor.setI2cAddress(I2cAddr.create8bit(0x16));
         gyro.setI2cAddress(I2cAddr.create8bit(0x30));
 
-        if (direction) {
-            leftFrontMotor.setDirection(DcMotor.Direction.REVERSE);
-            leftBackMotor.setDirection(DcMotor.Direction.REVERSE);
+        leftFrontMotor.setDirection(DcMotor.Direction.REVERSE);
+        leftBackMotor.setDirection(DcMotor.Direction.REVERSE);
 
-            rightFrontMotor.setDirection(DcMotor.Direction.FORWARD);
-            rightBackMotor.setDirection(DcMotor.Direction.FORWARD);
-        }
-        else {
-            leftFrontMotor.setDirection(DcMotor.Direction.FORWARD);
-            leftBackMotor.setDirection(DcMotor.Direction.FORWARD);
-
-            rightFrontMotor.setDirection(DcMotor.Direction.REVERSE);
-            rightBackMotor.setDirection(DcMotor.Direction.REVERSE);
-        }
+        rightFrontMotor.setDirection(DcMotor.Direction.FORWARD);
+        rightBackMotor.setDirection(DcMotor.Direction.FORWARD);
 
         collector.setDirection (DcMotor.Direction.FORWARD);
-        shooter.setDirection (DcMotor.Direction.FORWARD);
         shooter.setDirection (DcMotor.Direction.REVERSE);
 
         // Set all motors to zero power
@@ -112,20 +101,20 @@ public class RobotHardware {
         rightBackMotor.setPower(0);
         collector.setPower(0);
         shooter.setPower(0);
+
         // Set all motors to run without encoders.
         // May want to use RUN_USING_ENCODERS if encoders are installed.
-        /*if (AUT_MODE) {
+        if (mode) {
             leftFrontMotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-            rightFrontMotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-            leftBackMotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
             rightBackMotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
         }
         else {
             leftFrontMotor.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
-            rightFrontMotor.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
-            leftBackMotor.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
             rightBackMotor.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
-        }*/
+        }
+        rightFrontMotor.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+        leftBackMotor.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+        collector.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
 
         // Define and initialize ALL installed servos.
         // leftClaw = hwMap.servo.get("left claw");
@@ -157,5 +146,24 @@ public class RobotHardware {
 
         // Reset the cycle clock for the next pass.
         period.reset();
+    }
+
+    static final int     COUNTS_PER_MOTOR_REV    = 1440 ;    // eg: TETRIX Motor Encoder
+    public void shoot() {
+        shooter.setMode(DcMotor.RunMode.RESET_ENCODERS);
+        shooter.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        int currentPosition = shooter.getCurrentPosition();
+        int newTarget = currentPosition + 1680;
+        shooter.setTargetPosition(newTarget);
+        //telemetry.addData("Shoot",  "current=%7d: target=%7d",      currentPosition,  newTarget);
+        //telemetry.update()'
+        shooter.setPower(1);
+        shooter.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+        while (shooter.isBusy())
+        {
+
+        }
+        shooter.setPower(0);
+        shooter.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
     }
 }
