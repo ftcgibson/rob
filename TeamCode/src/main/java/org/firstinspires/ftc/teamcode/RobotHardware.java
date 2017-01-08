@@ -39,6 +39,7 @@ public class RobotHardware {
     public DcMotor collector = null;
     public DcMotor shooter = null;
     public ModernRoboticsI2cGyro gyro = null;
+    public DcMotor lifter = null;
     //public Servo    leftClaw        = null;
     //public Servo    rightClaw       = null;
     //public Servo    backClaw        = null;
@@ -80,10 +81,12 @@ public class RobotHardware {
         collector        = hwMap.dcMotor.get("collector");
         shooter          = hwMap.dcMotor.get("shooter");
         gyro             = (ModernRoboticsI2cGyro) hwMap.gyroSensor.get("gyro");
+        lifter           = hwMap.dcMotor.get("lifter");
 
         bottomSensor.setI2cAddress(I2cAddr.create8bit(0x10));
         sensor.setI2cAddress(I2cAddr.create8bit(0x16));
         gyro.setI2cAddress(I2cAddr.create8bit(0x30));
+        sensor.enableLed(false);
 
         leftFrontMotor.setDirection(DcMotor.Direction.REVERSE);
         leftBackMotor.setDirection(DcMotor.Direction.REVERSE);
